@@ -291,7 +291,7 @@ a{color:var(--auto)}
    설정 (CONFIG) — 배포 전 이 부분만 수정
    1) Firebase 콘솔 → Realtime Database → 웹 앱 등록 → firebaseConfig 복사
    2) FIREBASE_CONFIG 붙여넣기 (databaseURL 필수)
-   3) SUPER_PASSWORD(최고관리자=선생님 본인) 변경
+   3) SUPER_PASSWORD(관리자=선생님 본인) 변경
    본 앱은 간편 잠금(UI lock) 방식: 비밀번호가 DB에 평문 저장되며 우회 가능.
    학급 내부 관리용으로만 쓰고 중요한 개인 비번을 재사용하지 마세요.
    ============================================================================ */
@@ -419,7 +419,7 @@ function renderTopbar(){
   let whoChip="";
   if(S.role==="student"&&S.sid){const r=rosterOf(S.ck,S.sid);whoChip='<span class="who-chip">🎓 '+esc(r?r.name:"")+" · "+esc(classLabel(S.ck))+"</span>";}
   else if(S.role==="teacher"&&S.teacher){whoChip='<span class="who-chip">👩‍🏫 '+esc(S.teacher.name)+" 선생님</span>";}
-  else if(S.role==="super"){whoChip='<span class="who-chip">⭐ 최고관리자</span>';}
+  else if(S.role==="super"){whoChip='<span class="who-chip">⭐ 관리자</span>';}
   const notHome = S.view!=="home";
   $("#topbar").innerHTML=
     '<div class="brand"><span class="mark">創</span>'+
@@ -470,8 +470,8 @@ function render(){
 function viewHome(){
   return '<div class="fadein">'+
     '<div class="hero"><div class="eyebrow">Creative Experience Activity · 2026</div>'+
-    '<h1>활동을 <em>기록</em>하고,<br>자율·진로를 <em>설계</em>하다</h1>'+
-    '<p>'+esc(SCHOOL_GRADE)+' 창의적 체험활동을 학생이 스스로 정리하고, 담임 선생님이 그 기록을 바탕으로 자율·진로 활동을 함께 설계하는 워크스페이스입니다.</p></div>'+
+    '<h1>2026학년도 청주고등학교 <em> 창의적 체험 활동 기록</em></h1>'+
+    '<p>'+esc(SCHOOL_GRADE)+' 창의적 체험활동 기록을 학생이 스스로 정리할 수 있는 워크스페이스입니다.</p></div>'+
     '<div class="gate gate2">'+
       '<button class="opt stu" id="go-stu"><span class="edge"></span><div class="k">FOR STUDENTS</div>'+
         '<h3>학생 로그인</h3><p>반과 이름을 고르고 비밀번호로 입장. 내 활동을 탭으로 정리하고, 상담 내용은 열람할 수 있어요.</p>'+
@@ -693,13 +693,13 @@ function confirmDelRecord(id){ const rec=recordsSorted().find(r=>r.id===id); ope
 function rerenderStudentForce(){ _lastStudentJSON=""; const foc=captureFocus(); $("#app").innerHTML=viewStudent(); bindStudent(); restoreFocus(foc); }
 function viewTeaLogin(){
   return '<div class="login fadein"><div class="panel"><div style="padding:24px">'+
-    '<h2>교사 로그인</h2><p class="sub">최고관리자가 발급한 <b>교사 ID</b>와 비밀번호를 입력하세요.</p>'+
+    '<h2>교사 로그인</h2><p class="sub">관리자가 발급한 <b>교사 ID</b>와 비밀번호를 입력하세요.</p>'+
     '<div class="field"><label>교사 ID</label><input class="inp" id="tl-id" placeholder="예) kim"></div>'+
     '<div class="field"><label>비밀번호</label><input class="inp" id="tl-pw" type="password" placeholder="비밀번호"></div>'+
     '<button class="btn career" id="tl-go" style="width:100%;justify-content:center">로그인 →</button>'+
-    '<p style="font-size:12px;color:var(--faint);margin:12px 0 0">계정이 없다면 최고관리자(선생님 본인)가 먼저 교사 계정을 만들어야 합니다.</p>'+
+    '<p style="font-size:12px;color:var(--faint);margin:12px 0 0">계정이 없다면 관리자(선생님 본인)가 먼저 교사 계정을 만들어야 합니다.</p>'+
   '</div></div>'+
-  '<div class="sup-link"><button id="go-sup">⭐ 최고관리자로 로그인 (교사 계정·담당 학급 관리)</button></div></div>';
+  '<div class="sup-link"><button id="go-sup">⭐ 관리자로 로그인 (교사 계정·담당 학급 관리)</button></div></div>';
 }
 function bindTeaLogin(){
   clearSubs(); S.subs.push(Store.subscribe("config/teachers",d=>{S.teachers=d||{};}));
@@ -722,7 +722,7 @@ function viewTeaClasses(){
   const classes=Object.keys((S.teacher&&S.teacher.classes)||{}).filter(ck=>S.teacher.classes[ck]);
   const cards = classes.length? classes.map(ck=>'<button class="class-card" data-ck="'+ck+'"><div class="cl">CLASS</div>'+
     '<div class="cn">'+esc(classLabel(ck))+'</div><div class="ci">학생 '+rosterArr(ck).length+'명 · 기록·상담·활동 관리</div></button>').join("")
-    : '<div class="empty">배정된 담당 학급이 없습니다. 최고관리자에게 담당 반 배정을 요청하세요.</div>';
+    : '<div class="empty">배정된 담당 학급이 없습니다. 관리자에게 담당 반 배정을 요청하세요.</div>';
   return '<div class="fadein"><div class="ws-head"><div class="who"><div class="avatar" style="background:var(--career)">'+esc((S.teacher.name||"교").slice(0,1))+'</div>'+
     '<div><div class="nm">'+esc(S.teacher.name)+' 선생님</div><div class="meta">담당 학급 '+classes.length+'개</div></div></div></div>'+
     '<div class="panel" style="padding:20px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><span class="badge career">MY CLASSES</span><strong>담당 학급을 선택하세요</strong></div>'+
@@ -741,7 +741,7 @@ function viewClass(){
   const multi = S.role!=="super" && Object.keys((S.teacher&&S.teacher.classes)||{}).filter(ck=>S.teacher.classes[ck]).length>1;
   return '<div class="fadein">'+
     '<div class="ws-head"><div class="who"><div class="avatar" style="background:var(--career)">'+(S.role==="super"?"⭐":esc((S.teacher&&S.teacher.name||"교").slice(0,1)))+'</div>'+
-      '<div><div class="nm">'+esc(classLabel(S.ck))+'</div><div class="meta">'+(S.role==="super"?"최고관리자":esc(S.teacher?S.teacher.name+" 선생님":""))+' · 학급 관리</div></div></div>'+
+      '<div><div class="nm">'+esc(classLabel(S.ck))+'</div><div class="meta">'+(S.role==="super"?"관리자":esc(S.teacher?S.teacher.name+" 선생님":""))+' · 학급 관리</div></div></div>'+
       '<div class="spacer"></div>'+
       (multi?'<button class="btn ghost sm" id="cls-switch">↔ 다른 담당 반</button>':"")+
       (S.role==="super"?'<button class="btn ghost sm" id="cls-super">← 관리자 홈</button>':"")+
@@ -834,7 +834,7 @@ function viewSuper(){
       '<button class="btn sm" data-editt="'+t._id+'">담당반·정보 수정</button>'+
       '<button class="btn danger sm" data-delt="'+t._id+'">삭제</button></div>';};
   return '<div class="fadein"><div class="ws-head"><div class="who"><div class="avatar" style="background:var(--gold)">⭐</div>'+
-    '<div><div class="nm">최고관리자</div><div class="meta">'+esc(SCHOOL_GRADE)+' · 교사 계정 · 담당 학급 배정</div></div></div>'+
+    '<div><div class="nm">관리자</div><div class="meta">'+esc(SCHOOL_GRADE)+' · 교사 계정 · 담당 학급 배정</div></div></div>'+
     '<div class="spacer"></div><button class="btn ghost sm" id="sup-enter-class">학급 바로 열기</button></div>'+
     '<div style="display:grid;grid-template-columns:1fr 340px;gap:18px;align-items:start">'+
       '<div class="panel" style="padding:18px 20px">'+
@@ -943,7 +943,7 @@ function openModal(title,body,onOk,okLabel,danger){
   return ov;
 }
 function askSuperPassword(){
-  const ov=openModal("최고관리자 로그인","<label class='eyebrow'>비밀번호</label><input class='inp' id='sp' type='password' placeholder='최고관리자 비밀번호'>",null,"입장");
+  const ov=openModal("관리자 로그인","<label class='eyebrow'>비밀번호</label><input class='inp' id='sp' type='password' placeholder='관리자 비밀번호'>",null,"입장");
   const ok=ov.querySelector("#m-ok"), sp=ov.querySelector("#sp"); setTimeout(()=>sp&&sp.focus(),50);
   const go=()=>{ if(sp.value===SUPER_PASSWORD){ov.remove();enterSuper();} else {toast("비밀번호가 올바르지 않습니다","err");sp.value="";sp.focus();} };
   ok.onclick=go; sp.onkeydown=e=>{if(e.key==="Enter")go();};
