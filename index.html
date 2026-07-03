@@ -74,7 +74,11 @@ a{color:var(--auto)}
 .hero h1 em{font-style:normal;color:var(--auto)}
 .hero p{color:var(--muted);max-width:560px;margin:0 auto;font-size:15.5px}
 .gate{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:960px;margin:32px auto 0}
+.gate.gate2{grid-template-columns:repeat(2,1fr);max-width:720px}
 @media(max-width:760px){.gate{grid-template-columns:1fr}}
+.sup-link{max-width:440px;margin:14px auto 0;text-align:center}
+.sup-link button{background:none;border:none;color:var(--faint);font-size:12.5px;font-family:var(--mono);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.sup-link button:hover{color:var(--gold)}
 .gate .opt{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:24px 22px;text-align:left;transition:.18s;position:relative;overflow:hidden}
 .gate .opt:hover{border-color:var(--line-2);transform:translateY(-3px);box-shadow:var(--shadow)}
 .gate .opt .k{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.12em}
@@ -264,15 +268,9 @@ a{color:var(--auto)}
    학급 내부 관리용으로만 쓰고 중요한 개인 비번을 재사용하지 마세요.
    ============================================================================ */
 const FIREBASE_CONFIG = {
-    apiKey: "AIzaSyBH3HYCnkY2Xp46S53eQEP-zC6Dc-SdpBc",
-    authDomain: "class-teacher-4991c.firebaseapp.com",
-    databaseURL: "https://class-teacher-4991c-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "class-teacher-4991c",
-    storageBucket: "class-teacher-4991c.firebasestorage.app",
-    messagingSenderId: "689443163736",
-    appId: "1:689443163736:web:0c345631b7fb006445842d"
-  };
-const SUPER_PASSWORD = "cjdrh07000";
+  apiKey:"", authDomain:"", databaseURL:"", projectId:"", storageBucket:"", messagingSenderId:"", appId:""
+};
+const SUPER_PASSWORD = "super-2026";
 const SCHOOL_GRADE   = "3학년";
 const DEFAULT_ROSTERS = {
   c1: ["강인규","김건우","김예준","김재민","김재준","문찬빈","민현기","박민수","박정우","박종인","박희현","서승운","안종현","오승민","유세혁","유현성","이루다","이승재","이승현","이정민","이태양","이현준","이호준","이휘호","정수현","지요한","최효준","탁재우","홍상현"],
@@ -294,7 +292,7 @@ const DEFAULT_ACTIVITIES = [
   {id:"d02",domain:"자율",name:"이론 지식 확장 독서",org:"학급",period:"상시",content:"교과에서 학습한 지식을 확장하여 과학 지식에 대한 이해를 목적으로 책을 선정하고 독서를 통해 해결한다."},
   {id:"d03",domain:"자율",name:"최신 시사(통계자료) 분석",org:"학급",period:"상시",content:"자신의 진로(관심사) 분야 최신 과학·사회 이슈 또는 통계자료를 분석·공유하여 현 사회를 이해한다."},
   {id:"d04",domain:"자율",name:"과학자의 삶 읽기",org:"학급",period:"7월",content:"노벨상 수상 과학자를 선택해 시대적 배경과 연구 업적을 조사하고, 그 연구가 사회에 미친 영향을 분석한다."},
-  {id:"d05",domain:"자율",name:"인공지능(AI) 리터러시",org:"학급",period:"7월",content:"AI 활용에 필요한 핵심 역량(데이터 수집 등)을 파악하고 그 역량을 함양하는 과정을 진로와 연계해 수행한다."},
+  {id:"d05",domain:"자율",name:"인공지능(AI) 리터러시",org:"학급",period:"7월",content:"AI 활용에 필요한 핵심 역량(데이터 수집 등)을 파악하고 그 역량을 함양하는 과정을 진로와 연계해 수행한다.",onlyClasses:["c8"]},
   {id:"d06",domain:"자율",name:"지역 사회 연계 플로깅",org:"3학년",period:"4-6월",content:"학교 및 인근 근린공원 환경 정화활동 실시 → 후속 활동 연계."},
   {id:"d07",domain:"자율",name:"육각형 독서 마라톤",org:"3학년",period:"3-6월",content:"평소 읽지 않은 분야를 독서하고 서평을 작성·공유하며 균형 잡힌 시각과 자기주도적 독서 습관을 기른다."},
   {id:"d08",domain:"자율",name:"앎을 기반으로 삶을 배로 나누는 프로젝트(자율)",org:"3학년",period:"3-6월",content:"학교·지역사회 문제 해결 프로젝트 → 여러 교과를 융합한 지식 연계 산출물 제작·공유."},
@@ -350,10 +348,20 @@ function loadSession(){ try{return JSON.parse(localStorage.getItem("cea3_sess")|
 function clearSession(){ try{localStorage.removeItem("cea3_sess");}catch(e){} }
 function studentPickerActivities(){
   const stored=S.classActs||{}; const out=[];
-  DEFAULT_ACTIVITIES.forEach(a=>{ const s=stored[a.id]; if(!s||s.enabled!==false) out.push({...a}); });
+  DEFAULT_ACTIVITIES.forEach(a=>{ if(a.onlyClasses&&!a.onlyClasses.includes(S.ck))return; const s=stored[a.id]; if(!s||s.enabled!==false) out.push({...a}); });
   Object.entries(stored).forEach(([id,s])=>{ if(s&&s.custom&&s.enabled!==false) out.push({id,...s,custom:true}); });
   return out;
 }
+function defaultsForClass(ck){ return DEFAULT_ACTIVITIES.filter(a=>!a.onlyClasses||a.onlyClasses.includes(ck)); }
+/* 초기 비밀번호: 헷갈리는 글자 제외한 5자리 무작위 */
+function genPw(){ const cs="abcdefghjkmnpqrstuvwxyz23456789"; let s=""; for(let i=0;i<5;i++) s+=cs[Math.floor(Math.random()*cs.length)]; return s; }
+let _pwEnsured=null;
+async function ensurePasswords(ck){
+  if(_pwEnsured===ck) return; _pwEnsured=ck;
+  const ros=S.roster||{};
+  for(const r of rosterArr(ck)){ if(!(ros[r.sid]&&ros[r.sid].pw)) await Store.update("classes/"+ck+"/roster/"+r.sid,{pw:genPw()}); }
+}
+const isEditingPw=()=>{const a=document.activeElement;return !!(a&&a.classList&&a.classList.contains("pw-i"));};
 const _timers={};
 function saveDebounced(key,path,partial,indId){
   const ind=indId&&$("#"+indId); if(ind){ind.className="saveind saving";ind.innerHTML='<span class="d"></span>저장 중…';}
@@ -367,15 +375,36 @@ function renderTopbar(){
   if(S.role==="student"&&S.sid){const r=rosterOf(S.ck,S.sid);whoChip='<span class="who-chip">🎓 '+esc(r?r.name:"")+" · "+esc(classLabel(S.ck))+"</span>";}
   else if(S.role==="teacher"&&S.teacher){whoChip='<span class="who-chip">👩‍🏫 '+esc(S.teacher.name)+" 선생님</span>";}
   else if(S.role==="super"){whoChip='<span class="who-chip">⭐ 최고관리자</span>';}
+  const notHome = S.view!=="home";
   $("#topbar").innerHTML=
     '<div class="brand"><span class="mark">創</span>'+
     '<div><div class="ttl">창의적 체험활동 · 기록/설계실</div><div class="sub">'+esc(SCHOOL_GRADE)+' 창의적 체험활동</div></div></div>'+
+    (notHome?'<button class="btn ghost sm" id="nav-back">← 뒤로</button><button class="btn ghost sm" id="nav-home">⌂ 처음</button>':"")+
     '<div class="spacer"></div>'+whoChip+
     (S.role?'<button class="btn ghost sm" id="nav-out">로그아웃</button>':"")+
     '<div class="status '+(on?"on":"local")+'"><span class="led"></span>'+(on?"클라우드":"임시(local)")+'</div>';
   const o=$("#nav-out"); if(o)o.onclick=logout;
+  const bk=$("#nav-back"); if(bk)bk.onclick=goBack;
+  const hm=$("#nav-home"); if(hm)hm.onclick=goHome;
 }
-function logout(){ clearSubs(); clearSession(); Object.assign(S,{view:"home",role:null,ck:null,sid:null,teacher:null,student:null,loginClass:null,loginName:null}); render(); }
+function goHome(){ clearSubs(); Object.assign(S,{view:"home",role:null,ck:null,sid:null,teacher:null,student:null,loginClass:null,loginName:null}); pushHist(); render(); }
+function goBack(){
+  const v=S.view;
+  if(v==="stu-login"){ if(S.loginName){S.loginName=null;render();return;} if(S.loginClass){S.loginClass=null;render();return;} return goHome(); }
+  if(v==="tea-login") return goHome();
+  if(v==="tea-classes") return goHome();
+  if(v==="super") return goHome();
+  if(v==="student"){ if(S.role==="teacher"||S.role==="super"){ clearSubs(); return enterClass(S.ck); } return goHome(); }
+  if(v==="class"){
+    if(S.role==="super"){ clearSubs(); return enterSuper(); }
+    const cls=Object.keys((S.teacher&&S.teacher.classes)||{}).filter(ck=>S.teacher.classes[ck]);
+    if(cls.length>1){ clearSubs(); S.view="tea-classes"; pushHist(); render(); return; }
+    return goHome();
+  }
+  goHome();
+}
+function pushHist(){ try{ history.pushState({cea:1},""); }catch(e){} }
+function logout(){ clearSubs(); clearSession(); Object.assign(S,{view:"home",role:null,ck:null,sid:null,teacher:null,student:null,loginClass:null,loginName:null}); pushHist(); render(); }
 function renderSetup(){
   if(Store.mode()==="firebase"){$("#setup").innerHTML="";return;}
   $("#setup").innerHTML='<div class="setup"><div class="card"><span class="ico">🧪</span>'+
@@ -398,27 +427,14 @@ function viewHome(){
     '<div class="hero"><div class="eyebrow">Creative Experience Activity · 2026</div>'+
     '<h1>활동을 <em>기록</em>하고,<br>자율·진로를 <em>설계</em>하다</h1>'+
     '<p>'+esc(SCHOOL_GRADE)+' 창의적 체험활동을 학생이 스스로 정리하고, 담임 선생님이 그 기록을 바탕으로 자율·진로 활동을 함께 설계하는 워크스페이스입니다.</p></div>'+
-    '<div class="gate">'+
+    '<div class="gate gate2">'+
       '<button class="opt stu" id="go-stu"><span class="edge"></span><div class="k">FOR STUDENTS</div>'+
         '<h3>학생 로그인</h3><p>반과 이름을 고르고 비밀번호로 입장. 내 활동을 탭으로 정리하고, 상담 내용은 열람할 수 있어요.</p>'+
         '<span class="btn primary sm">학생으로 시작 →</span></button>'+
       '<button class="opt tea" id="go-tea"><span class="edge"></span><div class="k">FOR TEACHER</div>'+
         '<h3>교사 로그인</h3><p>담당 학급의 학생 기록·상담을 관리하고, 학생 비밀번호와 반별 활동 목록을 정리합니다.</p>'+
         '<span class="btn career sm">교사로 시작 →</span></button>'+
-      '<button class="opt sup" id="go-sup"><span class="edge"></span><div class="k">ADMIN</div>'+
-        '<h3>최고관리자</h3><p>교사 계정을 만들고 담당 학급을 배정합니다. (선생님 본인 · 학년 전체 설정)</p>'+
-        '<span class="btn sm" style="border-color:var(--gold);color:var(--gold)">관리자 설정 →</span></button>'+
-    '</div>'+
-    '<div style="max-width:900px;margin:24px auto 0"><details class="panel" style="padding:0">'+
-      '<summary style="padding:15px 20px;cursor:pointer;font-weight:600;list-style:none;display:flex;align-items:center;gap:9px"><span class="badge muted">GUIDE</span> GitHub + Firebase 배포 & 운영 가이드 (펼치기)</summary>'+
-      '<div style="padding:4px 22px 20px;color:var(--muted);font-size:13.5px;line-height:1.7">'+
-      '<b style="color:var(--ink)">① Firebase</b><br>콘솔에서 프로젝트 생성 → <b>Realtime Database</b> 만들기(테스트 모드) → 웹 앱 등록 후 <span class="mono">firebaseConfig</span> 복사.<br><br>'+
-      '<b style="color:var(--ink)">② 이 파일 수정</b><br>상단 <span class="mono">FIREBASE_CONFIG</span> 붙여넣기(<span class="mono">databaseURL</span> 포함) + <span class="mono">SUPER_PASSWORD</span> 변경.<br><br>'+
-      '<b style="color:var(--ink)">③ 배포</b><br>저장소에 <span class="mono">index.html</span>로 올리고 Settings → Pages → main 브랜치 선택.<br><br>'+
-      '<b style="color:var(--ink)">④ 최초 운영 순서</b><br>최고관리자 로그인 → 교사 계정 생성 + 담당 반 배정 → 교사 로그인 → 반별 활동 큐레이션 & 학생 비밀번호 배부 → 학생 로그인.<br><br>'+
-      '<b style="color:var(--ink)">⑤ 보안 안내</b><br>본 앱은 간편 잠금(UI lock)이라 비밀번호가 DB에 평문 저장됩니다. 학급 내부용으로만 쓰고 중요한 개인 비번을 재사용하지 마세요. 규칙 예시:'+
-      '<pre style="background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:10px 12px;overflow:auto;font-family:var(--mono);font-size:12px;color:var(--ink)">{ "rules": { ".read": true, ".write": true } }</pre>'+
-      '</div></details></div></div>';
+    '</div></div>';
 }
 function viewStuLogin(){
   const step = !S.loginClass ? "class" : !S.loginName ? "name" : "pw";
@@ -438,15 +454,20 @@ function viewStuLogin(){
     return '<div class="fadein panel"><div class="head"><span class="badge auto">'+esc(classLabel(S.loginClass))+'</span><h2>이름을 선택하세요</h2>'+
       '<div class="spacer"></div><button class="btn ghost sm" id="sl-back">← 반 다시</button></div>'+
       '<div class="roster" style="padding:18px 20px">'+chips+'</div>'+
-      '<div class="counsel-note" style="padding:0 20px 16px">🔒 = 비밀번호 설정됨 · ✦ = 첫 로그인(비밀번호를 새로 정합니다)</div></div>';
+      '<div class="counsel-note" style="padding:0 20px 16px">🔒 = 담임 선생님이 배부한 비밀번호로 로그인 · ✦ = 아직 준비 전(선생님께 문의)</div></div>';
   }
   const r=rosterOf(S.loginClass,S.loginName); const has=S.roster[S.loginName]&&S.roster[S.loginName].pw;
   return '<div class="login fadein"><div class="panel"><div style="padding:24px">'+
-    '<h2>'+esc(r?r.name:"")+'</h2><p class="sub">'+esc(classLabel(S.loginClass))+' · '+(has?"비밀번호를 입력하세요":"처음 로그인이에요. 사용할 비밀번호를 정하세요")+'</p>'+
-    '<div class="field"><label>'+(has?"비밀번호":"새 비밀번호")+'</label><input class="inp" id="sl-pw" type="password" placeholder="'+(has?"비밀번호":"새 비밀번호 (기억하세요)")+'"></div>'+
-    '<div class="row"><button class="btn ghost" id="sl-back2" style="flex:none">← 이름</button>'+
-    '<button class="btn primary" id="sl-go" style="flex:1;justify-content:center">'+(has?"입장":"설정하고 입장")+' →</button></div>'+
-    (has?'<p style="font-size:12px;color:var(--faint);margin:12px 0 0">비밀번호를 잊었으면 담임 선생님께 재설정을 요청하세요.</p>':'')+
+    '<h2>'+esc(r?r.name:"")+'</h2><p class="sub">'+esc(classLabel(S.loginClass))+' · '+(has?"담임 선생님이 배부한 비밀번호를 입력하세요":"아직 비밀번호가 준비되지 않았어요")+'</p>'+
+    (has?
+      '<div class="field"><label>비밀번호</label><input class="inp" id="sl-pw" type="password" placeholder="비밀번호"></div>'+
+      '<div class="row"><button class="btn ghost" id="sl-back2" style="flex:none">← 이름</button>'+
+      '<button class="btn primary" id="sl-go" style="flex:1;justify-content:center">입장 →</button></div>'+
+      '<p style="font-size:12px;color:var(--faint);margin:12px 0 0">비밀번호는 담임 선생님께 받으세요. 로그인 후 직접 바꿀 수 있어요.</p>'
+      :
+      '<p style="color:var(--muted);font-size:13.5px;margin:0 0 16px">담임 선생님이 학급을 준비하면 초기 비밀번호가 만들어집니다. 선생님께 초기 비밀번호를 받아 다시 시도해 주세요.</p>'+
+      '<button class="btn ghost" id="sl-back2" style="width:100%;justify-content:center">← 이름 다시 선택</button>'
+    )+
   '</div></div></div>';
 }
 function bindStuLogin(){
@@ -460,8 +481,8 @@ function bindStuLogin(){
   const pw=$("#sl-pw"); if(pw){pw.focus();pw.onkeydown=e=>{if(e.key==="Enter")stuLoginSubmit();};}
 }
 async function stuLoginSubmit(){
-  const val=$("#sl-pw").value; const sid=S.loginName; const rec=S.roster[sid]||{};
-  if(!rec.pw){ if(!val){toast("비밀번호를 정하세요","err");return;} await Store.update("classes/"+S.loginClass+"/roster/"+sid,{pw:val}); toast("비밀번호가 설정되었습니다","ok"); enterStudent(S.loginClass,sid,"student"); return; }
+  const el=$("#sl-pw"); if(!el)return; const val=el.value; const sid=S.loginName; const rec=S.roster[sid]||{};
+  if(!rec.pw){ toast("아직 비밀번호가 준비되지 않았어요. 담임 선생님께 문의하세요.","err"); return; }
   if(val!==rec.pw){ toast("비밀번호가 올바르지 않습니다","err"); return; }
   enterStudent(S.loginClass,sid,"student");
 }
@@ -472,6 +493,11 @@ function enterStudent(ck,sid,role){
   S.subs.push(Store.subscribe("classes/"+ck+"/activities",d=>{S.classActs=d||{}; if(S.view==="student") rerenderStudentGuarded();}));
   S.subs.push(Store.subscribe("config/classes",d=>{S.classCfg=d||{};}));
   render();
+}
+function changeMyPassword(){
+  const ov=openModal("비밀번호 변경","<label class='eyebrow'>새 비밀번호</label><input class='inp' id='np' type='text' placeholder='새 비밀번호 (기억하세요)'><p style='font-size:11.5px;color:var(--faint);margin:10px 0 0'>담임 선생님도 이 비밀번호를 확인할 수 있어요.</p>",
+    async()=>{ const v=((ov.querySelector('#np')||{}).value||'').trim(); if(!v){toast('비밀번호를 입력하세요','err');return false;} await Store.update("classes/"+S.ck+"/roster/"+S.sid,{pw:v}); toast('비밀번호가 변경되었습니다','ok'); },"변경");
+  const np=ov.querySelector('#np'); if(np){setTimeout(()=>np.focus(),50); np.onkeydown=e=>{if(e.key==='Enter')ov.querySelector('#m-ok').click();};}
 }
 function recordsSorted(){ const r=(S.student&&S.student.records)||{}; return Object.entries(r).map(([id,x])=>({id,...x})).sort((a,b)=>(a.order||0)-(b.order||0)); }
 const canEditCounsel=()=> S.role==="teacher"||S.role==="super";
@@ -491,6 +517,7 @@ function viewStudent(){
       '<div><div class="nm">'+esc(r?r.name:"")+'</div>'+
       '<div class="meta">'+esc(classLabel(S.ck))+' · '+String(r?r.no:0).padStart(2,"0")+'번'+(S.role!=="student"?" · "+(S.role==="super"?"관리자":"교사")+" 편집":"")+'</div></div></div>'+
       '<div class="spacer"></div>'+
+      (S.role==="student"?'<button class="btn ghost sm" id="btn-chpw">🔑 비밀번호 변경</button>':"")+
       '<button class="btn ghost sm" id="btn-print">🖨 인쇄</button>'+
       ((S.role==="teacher"||S.role==="super")?'<button class="btn ghost sm" id="btn-back">← 학급 개요</button>':"")+
     '</div>'+
@@ -576,6 +603,7 @@ function bindStudent(){
   const cp=$("#counsel-print"); if(cp)cp.onclick=doPrint;
   const bp=$("#btn-print"); if(bp)bp.onclick=doPrint;
   const bb=$("#btn-back"); if(bb)bb.onclick=()=>{clearSubs(); enterClass(S.ck);};
+  const cw=$("#btn-chpw"); if(cw)cw.onclick=changeMyPassword;
   bindBooks(); bindAddPicker();
 }
 function optimisticBook(dom,bid,k,v){ S.student=S.student||{}; S.student.books=S.student.books||{}; S.student.books[dom]=S.student.books[dom]||{}; S.student.books[dom][bid]=S.student.books[dom][bid]||{}; S.student.books[dom][bid][k]=v; }
@@ -605,7 +633,8 @@ function viewTeaLogin(){
     '<div class="field"><label>비밀번호</label><input class="inp" id="tl-pw" type="password" placeholder="비밀번호"></div>'+
     '<button class="btn career" id="tl-go" style="width:100%;justify-content:center">로그인 →</button>'+
     '<p style="font-size:12px;color:var(--faint);margin:12px 0 0">계정이 없다면 최고관리자(선생님 본인)가 먼저 교사 계정을 만들어야 합니다.</p>'+
-  '</div></div></div>';
+  '</div></div>'+
+  '<div class="sup-link"><button id="go-sup">⭐ 최고관리자로 로그인 (교사 계정·담당 학급 관리)</button></div></div>';
 }
 function bindTeaLogin(){
   clearSubs(); S.subs.push(Store.subscribe("config/teachers",d=>{S.teachers=d||{};}));
@@ -636,9 +665,9 @@ function viewTeaClasses(){
 }
 function bindTeaClasses(){ document.querySelectorAll(".class-card").forEach(c=>c.onclick=()=>enterClass(c.dataset.ck)); }
 function enterClass(ck){
-  clearSubs(); Object.assign(S,{view:"class",ck,adminTab:"students",sid:null,student:null});
-  S.subs.push(Store.subscribe("classes/"+ck+"/students",d=>{S.allStudents=d||{}; if(S.view==="class"&&S.adminTab==="students"){$("#app").innerHTML=viewClass();bindClass();}}));
-  S.subs.push(Store.subscribe("classes/"+ck+"/roster",d=>{S.roster=d||{}; if(S.view==="class"&&S.adminTab==="students"){$("#app").innerHTML=viewClass();bindClass();}}));
+  clearSubs(); _pwEnsured=null; Object.assign(S,{view:"class",ck,adminTab:"students",sid:null,student:null});
+  S.subs.push(Store.subscribe("classes/"+ck+"/students",d=>{S.allStudents=d||{}; if(S.view==="class"&&S.adminTab==="students"&&!isEditingPw()){$("#app").innerHTML=viewClass();bindClass();}}));
+  S.subs.push(Store.subscribe("classes/"+ck+"/roster",d=>{S.roster=d||{}; ensurePasswords(ck); if(S.view==="class"&&S.adminTab==="students"&&!isEditingPw()){$("#app").innerHTML=viewClass();bindClass();}}));
   S.subs.push(Store.subscribe("classes/"+ck+"/activities",d=>{S.classActs=d||{}; if(S.view==="class"&&S.adminTab==="activities"){$("#app").innerHTML=viewClass();bindClass();}}));
   S.subs.push(Store.subscribe("config/classes",d=>{S.classCfg=d||{};}));
   render();
@@ -669,13 +698,13 @@ function viewClassStudents(){
         '<button class="btn career sm open" data-sid="'+r.sid+'">열기 →</button></div>'+
       '<div class="bars"><span class="pill"><span class="dot auto"></span>활동 '+rc+'</span><span class="pill"><span class="dot career"></span>상담 '+cs+'/3</span></div>'+
       '<div class="barwrap"><div class="bar" style="width:'+pct+'%"></div></div>'+
-      '<div class="pw"><label>비번</label><input class="pw-i" data-sid="'+r.sid+'" value="'+esc(pw)+'" placeholder="(미설정)">'+
-        '<button class="btn danger sm pw-reset" data-sid="'+r.sid+'">재설정</button></div>'+
+      '<div class="pw"><label>비번</label><input class="pw-i" data-sid="'+r.sid+'" value="'+esc(pw)+'" placeholder="(생성 중…)">'+
+        '<button class="btn ghost sm pw-regen" data-sid="'+r.sid+'" title="새 비밀번호 무작위 생성">🎲</button></div>'+
     '</div>';}).join("");
   return '<div class="panel" style="padding:18px 20px">'+
     '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap"><span class="badge career">OVERVIEW</span>'+
       '<strong style="font-size:15px">학생 기록·상담 관리 및 비밀번호</strong></div>'+
-    '<p style="font-size:12.5px;color:var(--muted);margin:0 0 14px">비밀번호 칸을 직접 고쳐 설정/변경할 수 있고, ‘재설정’을 누르면 비워져 학생이 다음 로그인 때 새로 정합니다.</p>'+
+    '<p style="font-size:12.5px;color:var(--muted);margin:0 0 14px">학생 비밀번호는 처음에 자동으로 무작위 생성되어 배부됩니다(위 칸에서 확인). 칸을 직접 고쳐 바꾸거나 🎲로 새로 생성할 수 있고, 학생이 첫 로그인 후 스스로 바꾼 비밀번호도 여기에 그대로 표시됩니다.</p>'+
     '<div class="a-grid">'+cards+'</div></div>';
 }
 function viewClassActivities(){
@@ -691,14 +720,15 @@ function viewClassActivities(){
     '<span class="badge '+domainClass(a.domain)+'">'+esc(a.domain)+'</span>'+
     '<div class="grow"><div class="an">'+esc(a.name)+' <span class="badge muted">반 활동</span></div><div class="ad">'+esc(a.content||"")+'</div></div>'+
     '<button class="btn danger sm" data-delc="'+a.id+'">삭제</button></div>';};
-  const onCount=DEFAULT_ACTIVITIES.filter(a=>defState(a.id)).length+customs.filter(a=>a.enabled!==false).length;
+  const defList=defaultsForClass(S.ck);
+  const onCount=defList.filter(a=>defState(a.id)).length+customs.filter(a=>a.enabled!==false).length;
   return '<div style="display:grid;grid-template-columns:1fr 330px;gap:18px;align-items:start">'+
     '<div class="panel" style="padding:18px 20px">'+
       '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap"><span class="badge muted">CURATION</span>'+
         '<strong style="font-size:15px">이 반에서 학생이 고를 수 있는 활동</strong><span class="eyebrow" style="margin-left:auto">사용 '+onCount+'개</span></div>'+
       '<p style="font-size:12.5px;color:var(--muted);margin:0 0 14px">토글을 끄면 이 반 학생의 ‘활동 추가’ 목록에서 사라집니다. 반 전용 활동은 오른쪽에서 추가하세요.</p>'+
       '<div style="margin-bottom:4px" class="eyebrow">기본 프로그램 활동</div>'+
-      DEFAULT_ACTIVITIES.map(defItem).join("")+
+      defList.map(defItem).join("")+
       (customs.length?'<div style="margin:14px 0 4px" class="eyebrow">이 반 전용 활동</div>'+customs.map(cusItem).join(""):"")+
     '</div>'+
     '<div class="panel" style="padding:18px 20px">'+
@@ -718,7 +748,7 @@ function bindClass(){
   const su=$("#cls-super"); if(su)su.onclick=()=>{clearSubs();enterSuper();};
   document.querySelectorAll(".a-stu .open").forEach(b=>b.onclick=()=>enterStudent(S.ck,b.dataset.sid,S.role));
   document.querySelectorAll(".pw-i").forEach(inp=>inp.oninput=()=>saveDebounced("pw-"+inp.dataset.sid,"classes/"+S.ck+"/roster/"+inp.dataset.sid,{pw:inp.value}));
-  document.querySelectorAll(".pw-reset").forEach(b=>b.onclick=async()=>{await Store.update("classes/"+S.ck+"/roster/"+b.dataset.sid,{pw:""});toast("비밀번호가 초기화됐습니다. 학생이 다음 로그인 때 새로 정합니다.","ok");});
+  document.querySelectorAll(".pw-regen").forEach(b=>b.onclick=async()=>{const np=genPw();await Store.update("classes/"+S.ck+"/roster/"+b.dataset.sid,{pw:np});const inp=document.querySelector('.pw-i[data-sid="'+b.dataset.sid+'"]');if(inp)inp.value=np;toast("새 비밀번호: "+np,"ok");});
   document.querySelectorAll("[data-tog]").forEach(t=>t.onclick=async()=>{const id=t.dataset.tog;const s=(S.classActs||{})[id];const cur=!s||s.enabled!==false;await Store.update("classes/"+S.ck+"/activities/"+id,{ref:id,enabled:!cur});});
   document.querySelectorAll("[data-togc]").forEach(t=>t.onclick=async()=>{const id=t.dataset.togc;const s=(S.classActs||{})[id]||{};await Store.update("classes/"+S.ck+"/activities/"+id,{enabled:s.enabled===false});});
   document.querySelectorAll("[data-delc]").forEach(b=>b.onclick=()=>openModal("반 활동 삭제","이 반 전용 활동을 삭제할까요?",async()=>{await Store.remove("classes/"+S.ck+"/activities/"+b.dataset.delc);toast("삭제됨","ok");},"삭제",true));
@@ -814,7 +844,7 @@ function openModal(title,body,onOk,okLabel,danger){
   document.body.appendChild(ov); const close=()=>ov.remove();
   ov.onclick=e=>{if(e.target===ov)close();};
   ov.querySelector("#m-cancel").onclick=close;
-  ov.querySelector("#m-ok").onclick=async()=>{close();if(onOk)await onOk();};
+  ov.querySelector("#m-ok").onclick=async()=>{ if(onOk){ const r=await onOk(); if(r===false) return; } close(); };
   return ov;
 }
 function askSuperPassword(){
@@ -840,7 +870,8 @@ function resume(){
   }
   render();
 }
-resume();
+window.addEventListener("popstate", ()=>{ if(S.view!=="home"){ goBack(); pushHist(); } });
+resume(); pushHist();
 </script>
 </body>
 </html>
