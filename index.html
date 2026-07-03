@@ -115,6 +115,11 @@ a{color:var(--auto)}
 .ws-head .who .meta{font-family:var(--mono);font-size:11.5px;color:var(--faint)}
 .ws-head .spacer{flex:1}
 .tabstrip{display:flex;gap:4px;align-items:flex-end;flex-wrap:wrap;border-bottom:2px solid var(--line);padding:0 2px}
+.tab-grp{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--faint);align-self:center;padding:0 6px 6px 8px;display:inline-flex;align-items:center;gap:5px;text-transform:uppercase}
+.career-bar{display:flex;align-items:center;gap:12px;background:linear-gradient(90deg,var(--auto-soft),#fff);border:1px solid var(--line);border-left:4px solid var(--auto);border-radius:var(--r-sm);padding:11px 15px;margin-bottom:16px}
+.career-bar .cl{font-weight:700;font-size:13px;color:var(--auto-ink);white-space:nowrap;letter-spacing:-.01em}
+.career-bar .career-f{flex:1;background:#fff;margin:0}
+.career-bar .saveind{white-space:nowrap}
 .tab{border:1px solid var(--line);border-bottom:none;background:var(--surface-2);padding:9px 14px 10px;border-radius:9px 9px 0 0;font-weight:600;font-size:13.5px;color:var(--muted);display:flex;align-items:center;gap:8px;position:relative;top:2px;transition:.14s;max-width:230px}
 .tab:hover{color:var(--ink);background:var(--surface)}
 .tab.active{background:var(--surface);color:var(--ink);border-color:var(--line);box-shadow:0 -3px 0 0 var(--tabc,var(--auto)) inset;border-bottom:2px solid var(--surface)}
@@ -229,25 +234,48 @@ a{color:var(--auto)}
 .saveind .d{width:6px;height:6px;border-radius:50%;background:currentColor}
 #print-root{display:none}
 @media print{
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   body{background:#fff!important;background-image:none!important}
-  .topbar,.wrap,.toast-wrap,.overlay{display:none!important}
-  #print-root{display:block!important;padding:0;color:#000}
-  @page{margin:16mm 14mm}
-  .p-doc{font-size:12px;line-height:1.55}
-  .p-h{border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:flex-end}
-  .p-h .pt{font-size:19px;font-weight:800}.p-h .pm{font-family:var(--mono);font-size:11px}
-  .p-sec{margin-bottom:16px;page-break-inside:avoid}
-  .p-sec h3{font-size:14px;margin:0 0 8px;padding:4px 0;border-bottom:1px solid #999}
-  .p-rec{border:1px solid #bbb;border-radius:6px;padding:10px 12px;margin-bottom:10px;page-break-inside:avoid}
-  .p-rec .prt{font-weight:700;font-size:13px;margin-bottom:4px}
-  .p-rec table{width:100%;border-collapse:collapse;margin-top:5px}
-  .p-rec td{border:1px solid #ddd;padding:5px 7px;vertical-align:top;font-size:11.5px}
-  .p-rec td.k{width:96px;background:#f4f4f4;font-weight:600;font-family:var(--mono);font-size:11px}
-  .p-book td{border:1px solid #ccc;padding:5px 7px;font-size:11.5px}
-  .p-book th{border:1px solid #999;padding:5px 7px;font-size:11px;background:#eee;text-align:left}
-  .p-counsel{border:1px solid #000;border-radius:6px;padding:12px 14px;background:#fafafa}
-  .p-counsel .pcrow{margin-bottom:10px}.p-counsel .pck{font-weight:700;font-size:12px;margin-bottom:3px;font-family:var(--mono)}
-  .p-badge{display:inline-block;font-size:10px;font-family:var(--mono);border:1px solid #666;border-radius:10px;padding:1px 7px;font-weight:600}
+  .topbar,.wrap,.toast-wrap,.overlay,#setup{display:none!important}
+  #print-root{display:block!important;padding:0;color:#1a1a1a;font-family:var(--sans)}
+  @page{margin:15mm 15mm}
+  .p-doc{font-size:11.5px;line-height:1.6}
+  .p-h{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding-bottom:10px;margin-bottom:16px;border-bottom:2.5px solid #0E7C6B}
+  .p-kick{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#0E7C6B;font-weight:700;margin-bottom:3px}
+  .p-h .pt{font-size:21px;font-weight:800;letter-spacing:-.02em;color:#14211d}
+  .p-meta{border-collapse:collapse;font-size:10.5px}
+  .p-meta td{color:#777;padding:2px 8px 2px 0;text-align:right;font-weight:600}
+  .p-meta th{color:#1a1a1a;padding:2px 14px 2px 6px;text-align:left;font-weight:700;border-bottom:1px solid #e2e2e2}
+  .p-career{display:flex;align-items:center;gap:12px;border:1px solid #cfe3dd;background:#f2f8f6;border-radius:8px;padding:9px 14px;margin-bottom:16px}
+  .p-career-l{font-size:10.5px;font-weight:700;color:#0A5B4F;letter-spacing:.08em;white-space:nowrap}
+  .p-career-v{font-size:13px;font-weight:600}
+  .p-sec{margin-bottom:16px}
+  .p-sec h3{font-size:13px;font-weight:800;color:#14211d;margin:0 0 9px;padding-bottom:5px;border-bottom:1.5px solid #d7ddda;letter-spacing:-.01em}
+  .p-rec{border:1px solid #dfe4e1;border-radius:8px;padding:0;margin-bottom:9px;page-break-inside:avoid;overflow:hidden}
+  .p-rec .prt{font-weight:700;font-size:12.5px;padding:7px 11px;background:#f6f8f7;border-bottom:1px solid #e6ebe8;display:flex;align-items:center;gap:8px}
+  .p-fields{width:100%;border-collapse:collapse}
+  .p-fields td{border-top:1px solid #edf1ef;padding:6px 11px;vertical-align:top;font-size:11px}
+  .p-fields td.k{width:88px;color:#5c6b65;font-weight:700;font-size:10.5px;background:#fbfcfb;white-space:nowrap}
+  .p-book table{width:100%;border-collapse:collapse}
+  .p-book td,.p-book th{border:1px solid #dfe4e1;padding:6px 9px;font-size:11px;text-align:left}
+  .p-book th{background:#f6f8f7;font-weight:700;font-size:10.5px;color:#14211d}
+  .p-counsel{display:flex;flex-direction:column;gap:0;border:1px solid #dfe4e1;border-radius:8px;overflow:hidden}
+  .p-counsel .pcrow{page-break-inside:avoid}
+  .p-counsel .pcrow+.pcrow{border-top:1px solid #e6ebe8}
+  .p-counsel .pck{font-weight:700;font-size:10.5px;color:#333DA0;background:#f5f6fc;padding:6px 12px;letter-spacing:.03em}
+  .p-counsel .pcv{padding:9px 12px;font-size:11.5px;min-height:22px}
+  .p-badge{display:inline-block;font-size:9.5px;font-weight:700;border-radius:10px;padding:1px 8px}
+  .p-badge.auto{background:#E4F2EE;color:#0A5B4F}.p-badge.career{background:#E9EBFB;color:#333DA0}.p-badge.both{background:#eef3f2;color:#14211d}
+  .p-empty{color:#aab2ae;font-style:italic}
+  .p-note{font-size:10.5px;color:#666;background:#fbfaf4;border:1px solid #ecdca4;border-radius:6px;padding:8px 11px;margin:0 0 14px}
+  .p-roster{width:100%;border-collapse:collapse}
+  .p-roster th{background:#0E7C6B;color:#fff;font-size:11px;font-weight:700;padding:8px 10px;text-align:left}
+  .p-roster td{border:1px solid #dfe4e1;padding:7px 10px;font-size:12px}
+  .p-roster tbody tr:nth-child(even) td{background:#f8faf9}
+  .p-roster .rn{width:44px;color:#777;font-family:var(--mono);font-size:11px}
+  .p-roster .rnm{font-weight:600}
+  .p-roster .rpw{font-family:var(--mono);font-weight:700;letter-spacing:.05em;width:130px}
+  .p-foot{margin-top:18px;padding-top:8px;border-top:1px solid #e2e2e2;font-size:9.5px;color:#9aa39e;text-align:center}
 }
 </style>
 </head>
@@ -276,6 +304,7 @@ const FIREBASE_CONFIG = {
   messagingSenderId: "689443163736",
   appId: "1:689443163736:web:0c345631b7fb006445842d"
 };
+
 const SUPER_PASSWORD = "cjdrh07000";
 const SCHOOL_GRADE   = "3학년";
 const DEFAULT_ROSTERS = {
@@ -297,7 +326,7 @@ const DEFAULT_ACTIVITIES = [
   {id:"d01",domain:"자율",name:"학급 1인 1역할(학급 운영 활동)",org:"학급",period:"상시",content:"자신의 역량을 바탕으로 학급에 기여할 방법을 실천한다. 예) 학급 실장·부실장, 프로그램 운영 담당 등"},
   {id:"d02",domain:"자율",name:"이론 지식 확장 독서",org:"학급",period:"상시",content:"교과에서 학습한 지식을 확장하여 과학 지식에 대한 이해를 목적으로 책을 선정하고 독서를 통해 해결한다."},
   {id:"d03",domain:"자율",name:"최신 시사(통계자료) 분석",org:"학급",period:"상시",content:"자신의 진로(관심사) 분야 최신 과학·사회 이슈 또는 통계자료를 분석·공유하여 현 사회를 이해한다."},
-  {id:"d04",domain:"자율",name:"과학자의 삶 읽기",org:"학급",period:"7월",content:"노벨상 수상 과학자를 선택해 시대적 배경과 연구 업적을 조사하고, 그 연구가 사회에 미친 영향을 분석한다."},
+  {id:"d04",domain:"자율",name:"과학자의 삶 읽기",org:"학급",period:"7월",content:"노벨상 수상 과학자를 선택해 시대적 배경과 연구 업적을 조사하고, 그 연구가 사회에 미친 영향을 분석한다.",onlyClasses:["c8"]},
   {id:"d05",domain:"자율",name:"인공지능(AI) 리터러시",org:"학급",period:"7월",content:"AI 활용에 필요한 핵심 역량(데이터 수집 등)을 파악하고 그 역량을 함양하는 과정을 진로와 연계해 수행한다.",onlyClasses:["c8"]},
   {id:"d06",domain:"자율",name:"지역 사회 연계 플로깅",org:"3학년",period:"4-6월",content:"학교 및 인근 근린공원 환경 정화활동 실시 → 후속 활동 연계."},
   {id:"d07",domain:"자율",name:"육각형 독서 마라톤",org:"3학년",period:"3-6월",content:"평소 읽지 않은 분야를 독서하고 서평을 작성·공유하며 균형 잡힌 시각과 자기주도적 독서 습관을 기른다."},
@@ -364,10 +393,20 @@ function genPw(){ const cs="abcdefghjkmnpqrstuvwxyz23456789"; let s=""; for(let 
 let _pwEnsured=null;
 async function ensurePasswords(ck){
   if(_pwEnsured===ck) return; _pwEnsured=ck;
-  const ros=S.roster||{};
-  for(const r of rosterArr(ck)){ if(!(ros[r.sid]&&ros[r.sid].pw)) await Store.update("classes/"+ck+"/roster/"+r.sid,{pw:genPw()}); }
+  const ros=S.roster||{}; const merged={}; let need=false;
+  for(const r of rosterArr(ck)){ const cur=ros[r.sid]||{}; if(cur.pw){ merged[r.sid]=cur; } else { merged[r.sid]={...cur,pw:genPw()}; need=true; } }
+  if(need) await Store.update("classes/"+ck+"/roster", merged);   // 한 번에 저장 → 깜빡임 방지
 }
 const isEditingPw=()=>{const a=document.activeElement;return !!(a&&a.classList&&a.classList.contains("pw-i"));};
+let _lastClassJSON="";
+function rerenderClass(){
+  if(S.view!=="class"||isEditingPw()) return;
+  const j=JSON.stringify([S.adminTab,S.allStudents,S.roster,S.classActs,(S.classCfg||{})[S.ck]]);
+  if(j===_lastClassJSON) return; _lastClassJSON=j;
+  $("#app").innerHTML=viewClass(); bindClass();
+}
+const recIsAuto=rec=> rec && (rec.domain==="자율"||rec.domain==="자율/진로");
+const recIsCareer=rec=> rec && (rec.domain==="진로"||rec.domain==="자율/진로");
 const _timers={};
 function saveDebounced(key,path,partial,indId){
   const ind=indId&&$("#"+indId); if(ind){ind.className="saveind saving";ind.innerHTML='<span class="d"></span>저장 중…';}
@@ -384,7 +423,7 @@ function renderTopbar(){
   const notHome = S.view!=="home";
   $("#topbar").innerHTML=
     '<div class="brand"><span class="mark">創</span>'+
-    '<div><div class="ttl">창의적 체험활동 · 기록/설계실</div><div class="sub">'+esc(SCHOOL_GRADE)+' 창의적 체험활동</div></div></div>'+
+    '<div><div class="ttl">창의적 체험활동 기록 및 상담 워크스페이스</div><div class="sub">'+esc(SCHOOL_GRADE)+' 창의적 체험활동</div></div></div>'+
     (notHome?'<button class="btn ghost sm" id="nav-back">← 뒤로</button><button class="btn ghost sm" id="nav-home">⌂ 처음</button>':"")+
     '<div class="spacer"></div>'+whoChip+
     (S.role?'<button class="btn ghost sm" id="nav-out">로그아웃</button>':"")+
@@ -509,15 +548,21 @@ function recordsSorted(){ const r=(S.student&&S.student.records)||{}; return Obj
 const canEditCounsel=()=> S.role==="teacher"||S.role==="super";
 function viewStudent(){
   const r=rosterOf(S.ck,S.sid); const recs=recordsSorted(); const initial=r?r.name.slice(-2):"학생";
+  const autoRecs=recs.filter(recIsAuto), careerRecs=recs.filter(recIsCareer);
+  const recTab=(rec,idx,dc)=>'<button class="tab '+(S.tab===rec.id?"active":"")+'" data-tab="'+rec.id+'" style="--tabc:var(--'+dc+')">'+
+    '<span class="tno">'+String(idx).padStart(2,"0")+'</span><span class="dot '+dc+'"></span>'+
+    '<span class="tt">'+esc(rec.name||"제목 없음")+'</span><span class="x" data-del="'+rec.id+'">×</span></button>';
   const tabs=[
     '<button class="tab books '+(S.tab==="books"?"active":"")+'" data-tab="books"><span class="tno">📚</span><span class="tt">도서 · 연계</span></button>',
-    ...recs.map((rec,i)=>{const dc=domainClass(rec.domain);
-      return '<button class="tab '+(S.tab===rec.id?"active":"")+'" data-tab="'+rec.id+'" style="--tabc:var(--'+(dc==="both"?"auto":dc)+')">'+
-        '<span class="tno">'+String(i+1).padStart(2,"0")+'</span><span class="dot '+(dc==="career"?"career":"auto")+'"></span>'+
-        '<span class="tt">'+esc(rec.name||"제목 없음")+'</span><span class="x" data-del="'+rec.id+'">×</span></button>';}),
+    ...(autoRecs.length?['<span class="tab-grp"><span class="dot auto"></span>자율</span>',...autoRecs.map((x,i)=>recTab(x,i+1,"auto"))]:[]),
+    ...(careerRecs.length?['<span class="tab-grp"><span class="dot career"></span>진로</span>',...careerRecs.map((x,i)=>recTab(x,i+1,"career"))]:[]),
     '<button class="tab add '+(S.tab==="add"?"active":"")+'" data-tab="add"><span>＋ 활동 추가</span></button>'
   ].join("");
   let body = S.tab==="books"?viewBooks() : S.tab==="add"?viewAddPicker() : (()=>{const rec=recs.find(x=>x.id===S.tab);return rec?viewRecord(rec):'<div class="empty">활동을 선택하세요.</div>';})();
+  const career=(S.student&&S.student.career)||"";
+  const careerBar='<div class="career-bar"><span class="cl">진로 희망</span>'+
+    '<input class="inp career-f" placeholder="희망 진로·관심 분야를 적어주세요 (예: 컴퓨터공학 · AI 연구원)" value="'+esc(career)+'">'+
+    '<span class="saveind" id="career-save"></span></div>';
   return '<div class="fadein">'+
     '<div class="ws-head"><div class="who"><div class="avatar">'+esc(initial)+'</div>'+
       '<div><div class="nm">'+esc(r?r.name:"")+'</div>'+
@@ -527,6 +572,7 @@ function viewStudent(){
       '<button class="btn ghost sm" id="btn-print">🖨 인쇄</button>'+
       ((S.role==="teacher"||S.role==="super")?'<button class="btn ghost sm" id="btn-back">← 학급 개요</button>':"")+
     '</div>'+
+    careerBar+
     '<div class="ws"><div><div class="tabstrip">'+tabs+'</div><div class="tabbody" id="tabbody">'+body+'</div></div>'+viewCounsel()+'</div></div>';
 }
 function viewBooks(){
@@ -544,10 +590,14 @@ function viewBooks(){
       '<button class="btn sm" id="add-book-career" style="margin-top:6px">＋ 진로 도서 추가</button></div>';
 }
 function viewRecord(rec){
-  const dc=domainClass(rec.domain); const badge=dc==="career"?"career":dc==="both"?"both":"auto";
+  const d=rec.domain||"자율";
+  const seg='<div class="seg dom-seg" data-rid="'+rec.id+'">'+
+    '<button data-d="자율" class="'+(d==="자율"?"on":"")+'">자율</button>'+
+    '<button data-d="진로" class="'+(d==="진로"?"on career":"")+'">진로</button>'+
+    '<button data-d="자율/진로" class="'+(d==="자율/진로"?"on":"")+'">자율·진로</button></div>';
   const ta=(key,label,hint,val,big)=>'<div class="field"><label><span class="l">'+label+'</span><span class="hint">'+hint+'</span></label>'+
     '<textarea class="ta '+(big?"big":"")+' rec-f" data-f="'+key+'" placeholder="'+hint+'">'+esc(val||"")+'</textarea></div>';
-  return '<div class="rec-title"><span class="badge '+badge+'">'+esc(rec.domain||"자율")+'</span><span class="saveind" id="rec-save"></span></div>'+
+  return '<div class="rec-title" style="justify-content:space-between"><div style="display:flex;align-items:center;gap:10px"><span class="eyebrow">영역</span>'+seg+'</div><span class="saveind" id="rec-save"></span></div>'+
     '<div class="field"><label><span class="l">활동명</span><span class="hint">Activity name</span></label>'+
       '<input class="inp rec-f" data-f="name" placeholder="활동명" value="'+esc(rec.name||"")+'"></div>'+
     '<div class="field"><label><span class="l">세부 주제</span><span class="hint">구체적으로 무엇을 다뤘나</span></label>'+
@@ -571,14 +621,14 @@ function viewAddPicker(){
     '<div class="pick-sec"><h4>＋ 직접 활동 만들기</h4><p class="desc">목록에 없는 활동을 직접 추가합니다.</p>'+
       '<div class="custom-add">'+
         '<div><label class="eyebrow" style="display:block;margin-bottom:5px">활동명</label><input class="inp" id="custom-name" placeholder="예) 지역 하천 수질 프로젝트"></div>'+
-        '<div><label class="eyebrow" style="display:block;margin-bottom:5px">영역</label><div class="seg" id="custom-dom"><button class="on" data-d="자율">자율</button><button data-d="진로" class="career">진로</button></div></div>'+
+        '<div><label class="eyebrow" style="display:block;margin-bottom:5px">영역</label><div class="seg" id="custom-dom"><button class="on" data-d="자율">자율</button><button data-d="진로" class="career">진로</button><button data-d="자율/진로">자율·진로</button></div></div>'+
         '<button class="btn primary" id="custom-create">추가하고 열기</button></div></div>';
 }
 function viewCounsel(){
   const c=(S.student&&S.student.counseling)||{}; const lock=!canEditCounsel();
   const dis=lock?"disabled":""; const clsf=lock?"":"counsel-f";
   return '<aside class="counsel '+(lock?"locked":"")+'">'+
-    '<div class="ch"><span class="ci">✎</span><h3>자율·진로 설계 상담</h3>'+
+    '<div class="ch"><span class="ci">✎</span><h3>자율진로활동 상담</h3>'+
       (lock?'<span class="lockchip">열람 전용</span>':'<span class="cs" id="counsel-save"></span>')+'</div>'+
     '<div class="cb">'+
       '<div class="csec"><label><span class="dot auto"></span> 자율 활동 설계</label>'+
@@ -588,26 +638,35 @@ function viewCounsel(){
       '<div class="csec"><label>종합 소견</label>'+
         '<textarea class="ta '+clsf+'" data-f="summary" '+dis+' placeholder="'+(lock?"담임 선생님이 작성합니다":"상담 종합 의견·다음 목표")+'">'+esc(c.summary||"")+'</textarea></div>'+
     '</div>'+
-    '<div class="ftr"><button class="btn primary sm" id="counsel-print" style="flex:1">🖨 상담+기록 인쇄</button></div>'+
+    '<div class="ftr"><button class="btn primary sm" id="print-full" style="flex:1">🖨 활동+상담</button><button class="btn sm" id="print-counsel" style="flex:1">🖨 상담만</button></div>'+
     '<div class="counsel-note">'+(lock?"상담 내용은 담임 선생님만 작성할 수 있고, 학생은 열람만 가능합니다. (모든 활동 탭에서 동일하게 표시)":"이 패널은 모든 활동 탭에서 동일하게 연동됩니다.")+'</div>'+
   '</aside>';
 }
 let _lastStudentJSON="";
 function rerenderStudentGuarded(){ const j=JSON.stringify([S.student,S.classActs]); if(j===_lastStudentJSON)return; _lastStudentJSON=j;
   const foc=captureFocus(); $("#app").innerHTML=viewStudent(); bindStudent(); restoreFocus(foc); }
-function captureFocus(){ const el=document.activeElement; if(!el||!el.matches||!el.matches(".rec-f,.counsel-f,.bk-title,.bk-act"))return null;
+function captureFocus(){ const el=document.activeElement; if(!el||!el.matches||!el.matches(".rec-f,.counsel-f,.bk-title,.bk-act,.career-f"))return null;
   const row=el.closest("[data-bid]"); return {f:el.dataset.f,bid:row&&row.dataset.bid,cls:el.className,s:el.selectionStart,e:el.selectionEnd}; }
 function restoreFocus(f){ if(!f)return; let sel;
   if(f.bid) sel='[data-bid="'+f.bid+'"] .'+(f.cls.includes("bk-title")?"bk-title":"bk-act");
+  else if(f.cls&&f.cls.includes("career-f")) sel='.career-f';
   else if(f.f) sel='.rec-f[data-f="'+f.f+'"],.counsel-f[data-f="'+f.f+'"]';
   const el=sel&&$(sel); if(el){el.focus();try{el.setSelectionRange(f.s,f.e);}catch(e){}} }
 function bindStudent(){
   document.querySelectorAll(".tab").forEach(t=>t.onclick=e=>{ if(e.target.dataset.del){e.stopPropagation();confirmDelRecord(e.target.dataset.del);return;} S.tab=t.dataset.tab; $("#app").innerHTML=viewStudent(); bindStudent(); });
   document.querySelectorAll(".rec-f").forEach(inp=>inp.oninput=()=>{const f=inp.dataset.f; if(S.student&&S.student.records&&S.student.records[S.tab])S.student.records[S.tab][f]=inp.value; saveDebounced("rec-"+S.tab+"-"+f,"classes/"+S.ck+"/students/"+S.sid+"/records/"+S.tab,{[f]:inp.value},"rec-save");});
+  // 진로 희망
+  const cf=$(".career-f"); if(cf)cf.oninput=()=>{ S.student=S.student||{}; S.student.career=cf.value; saveDebounced("career","classes/"+S.ck+"/students/"+S.sid,{career:cf.value},"career-save"); };
+  // 영역(자율/진로/자율·진로) 변경 → 저장 후 그룹 재배치
+  const seg=$(".dom-seg");
+  if(seg) seg.querySelectorAll("button").forEach(bt=>bt.onclick=async()=>{ const rid=seg.dataset.rid, dom=bt.dataset.d;
+    if(S.student&&S.student.records&&S.student.records[rid]) S.student.records[rid].domain=dom;
+    await Store.update("classes/"+S.ck+"/students/"+S.sid+"/records/"+rid,{domain:dom}); rerenderStudentForce(); });
   const rd=$("#rec-del"); if(rd)rd.onclick=()=>confirmDelRecord(rd.dataset.id);
   if(canEditCounsel()) document.querySelectorAll(".counsel-f").forEach(inp=>inp.oninput=()=>{const f=inp.dataset.f; S.student=S.student||{}; S.student.counseling=S.student.counseling||{}; S.student.counseling[f]=inp.value; saveDebounced("cs-"+f,"classes/"+S.ck+"/students/"+S.sid+"/counseling",{[f]:inp.value,updatedAt:Date.now()},"counsel-save");});
-  const cp=$("#counsel-print"); if(cp)cp.onclick=doPrint;
-  const bp=$("#btn-print"); if(bp)bp.onclick=doPrint;
+  const pf=$("#print-full"); if(pf)pf.onclick=()=>doPrint("full");
+  const pc=$("#print-counsel"); if(pc)pc.onclick=()=>doPrint("counsel");
+  const bp=$("#btn-print"); if(bp)bp.onclick=()=>doPrint("full");
   const bb=$("#btn-back"); if(bb)bb.onclick=()=>{clearSubs(); enterClass(S.ck);};
   const cw=$("#btn-chpw"); if(cw)cw.onclick=changeMyPassword;
   bindBooks(); bindAddPicker();
@@ -628,7 +687,7 @@ function bindAddPicker(){
   const seg=$("#custom-dom"); if(seg)seg.querySelectorAll("button").forEach(bt=>bt.onclick=()=>{seg.querySelectorAll("button").forEach(x=>x.classList.remove("on"));bt.classList.add("on");});
   const cc=$("#custom-create"); if(cc)cc.onclick=async()=>{const name=$("#custom-name").value.trim();if(!name){toast("활동명을 입력하세요","err");return;}const dom=seg.querySelector("button.on").dataset.d;await createRecord({name,domain:dom,subtopic:"",motivation:"",content:"",learned:""});};
 }
-async function addRecordFromActivity(a){ await createRecord({name:a.name,domain:(a.domain==="자율/진로"?"자율":a.domain),subtopic:"",motivation:"",content:a.content||"",learned:"",refId:a.id}); toast("활동 탭이 추가되었습니다","ok"); }
+async function addRecordFromActivity(a){ await createRecord({name:a.name,domain:(a.domain||"자율"),subtopic:"",motivation:"",content:a.content||"",learned:"",refId:a.id}); toast("활동이 추가되었습니다","ok"); }
 async function createRecord(rec){ const k=Store.newKey(); const order=recordsSorted().length+1; await Store.set("classes/"+S.ck+"/students/"+S.sid+"/records/"+k,{...rec,order,createdAt:Date.now()}); S.tab=k; rerenderStudentForce(); }
 function confirmDelRecord(id){ const rec=recordsSorted().find(r=>r.id===id); openModal("활동 삭제","‘"+esc(rec?rec.name:"")+"’ 활동 기록을 삭제할까요? 되돌릴 수 없습니다.",async()=>{await Store.remove("classes/"+S.ck+"/students/"+S.sid+"/records/"+id);if(S.tab===id)S.tab="books";toast("삭제됨","ok");rerenderStudentForce();},"삭제",true); }
 function rerenderStudentForce(){ _lastStudentJSON=""; const foc=captureFocus(); $("#app").innerHTML=viewStudent(); bindStudent(); restoreFocus(foc); }
@@ -664,24 +723,24 @@ function viewTeaClasses(){
   const cards = classes.length? classes.map(ck=>'<button class="class-card" data-ck="'+ck+'"><div class="cl">CLASS</div>'+
     '<div class="cn">'+esc(classLabel(ck))+'</div><div class="ci">학생 '+rosterArr(ck).length+'명 · 기록·상담·활동 관리</div></button>').join("")
     : '<div class="empty">배정된 담당 학급이 없습니다. 최고관리자에게 담당 반 배정을 요청하세요.</div>';
-  return '<div class="fadein"><div class="ws-head"><div class="who"><div class="avatar" style="background:var(--career)">師</div>'+
+  return '<div class="fadein"><div class="ws-head"><div class="who"><div class="avatar" style="background:var(--career)">'+esc((S.teacher.name||"교").slice(0,1))+'</div>'+
     '<div><div class="nm">'+esc(S.teacher.name)+' 선생님</div><div class="meta">담당 학급 '+classes.length+'개</div></div></div></div>'+
     '<div class="panel" style="padding:20px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><span class="badge career">MY CLASSES</span><strong>담당 학급을 선택하세요</strong></div>'+
     '<div class="class-grid">'+cards+'</div></div></div>';
 }
 function bindTeaClasses(){ document.querySelectorAll(".class-card").forEach(c=>c.onclick=()=>enterClass(c.dataset.ck)); }
 function enterClass(ck){
-  clearSubs(); _pwEnsured=null; Object.assign(S,{view:"class",ck,adminTab:"students",sid:null,student:null});
-  S.subs.push(Store.subscribe("classes/"+ck+"/students",d=>{S.allStudents=d||{}; if(S.view==="class"&&S.adminTab==="students"&&!isEditingPw()){$("#app").innerHTML=viewClass();bindClass();}}));
-  S.subs.push(Store.subscribe("classes/"+ck+"/roster",d=>{S.roster=d||{}; ensurePasswords(ck); if(S.view==="class"&&S.adminTab==="students"&&!isEditingPw()){$("#app").innerHTML=viewClass();bindClass();}}));
-  S.subs.push(Store.subscribe("classes/"+ck+"/activities",d=>{S.classActs=d||{}; if(S.view==="class"&&S.adminTab==="activities"){$("#app").innerHTML=viewClass();bindClass();}}));
-  S.subs.push(Store.subscribe("config/classes",d=>{S.classCfg=d||{};}));
+  clearSubs(); _pwEnsured=null; _lastClassJSON=""; Object.assign(S,{view:"class",ck,adminTab:"students",sid:null,student:null});
+  S.subs.push(Store.subscribe("classes/"+ck+"/students",d=>{S.allStudents=d||{}; rerenderClass();}));
+  S.subs.push(Store.subscribe("classes/"+ck+"/roster",d=>{S.roster=d||{}; ensurePasswords(ck); rerenderClass();}));
+  S.subs.push(Store.subscribe("classes/"+ck+"/activities",d=>{S.classActs=d||{}; rerenderClass();}));
+  S.subs.push(Store.subscribe("config/classes",d=>{S.classCfg=d||{}; rerenderClass();}));
   render();
 }
 function viewClass(){
   const multi = S.role!=="super" && Object.keys((S.teacher&&S.teacher.classes)||{}).filter(ck=>S.teacher.classes[ck]).length>1;
   return '<div class="fadein">'+
-    '<div class="ws-head"><div class="who"><div class="avatar" style="background:var(--career)">師</div>'+
+    '<div class="ws-head"><div class="who"><div class="avatar" style="background:var(--career)">'+(S.role==="super"?"⭐":esc((S.teacher&&S.teacher.name||"교").slice(0,1)))+'</div>'+
       '<div><div class="nm">'+esc(classLabel(S.ck))+'</div><div class="meta">'+(S.role==="super"?"최고관리자":esc(S.teacher?S.teacher.name+" 선생님":""))+' · 학급 관리</div></div></div>'+
       '<div class="spacer"></div>'+
       (multi?'<button class="btn ghost sm" id="cls-switch">↔ 다른 담당 반</button>':"")+
@@ -709,8 +768,9 @@ function viewClassStudents(){
     '</div>';}).join("");
   return '<div class="panel" style="padding:18px 20px">'+
     '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap"><span class="badge career">OVERVIEW</span>'+
-      '<strong style="font-size:15px">학생 기록·상담 관리 및 비밀번호</strong></div>'+
-    '<p style="font-size:12.5px;color:var(--muted);margin:0 0 14px">학생 비밀번호는 처음에 자동으로 무작위 생성되어 배부됩니다(위 칸에서 확인). 칸을 직접 고쳐 바꾸거나 🎲로 새로 생성할 수 있고, 학생이 첫 로그인 후 스스로 바꾼 비밀번호도 여기에 그대로 표시됩니다.</p>'+
+      '<strong style="font-size:15px">학생 기록·상담 관리 및 비밀번호</strong>'+
+      '<button class="btn sm" id="print-roster" style="margin-left:auto">🖨 이름·비밀번호 인쇄</button></div>'+
+    '<p style="font-size:12.5px;color:var(--muted);margin:0 0 14px">학생 비밀번호는 처음에 자동으로 무작위 생성되어 배부됩니다(위 칸에서 확인). 칸을 직접 고쳐 바꾸거나 🎲로 새로 생성할 수 있고, 학생이 첫 로그인 후 스스로 바꾼 비밀번호도 여기에 그대로 표시됩니다. 인쇄해서 학생들에게 이름과 함께 나눠줄 수 있어요.</p>'+
     '<div class="a-grid">'+cards+'</div></div>';
 }
 function viewClassActivities(){
@@ -750,6 +810,7 @@ function viewClassActivities(){
 }
 function bindClass(){
   document.querySelectorAll(".atab").forEach(t=>t.onclick=()=>{S.adminTab=t.dataset.at;$("#app").innerHTML=viewClass();bindClass();});
+  const pr=$("#print-roster"); if(pr)pr.onclick=printRoster;
   const sw=$("#cls-switch"); if(sw)sw.onclick=()=>{clearSubs();S.view="tea-classes";render();};
   const su=$("#cls-super"); if(su)su.onclick=()=>{clearSubs();enterSuper();};
   document.querySelectorAll(".a-stu .open").forEach(b=>b.onclick=()=>enterStudent(S.ck,b.dataset.sid,S.role));
@@ -822,24 +883,52 @@ function openSelectClass(cb){
   const body='<select class="select" id="sel-ck"><option value="">— 반 선택 —</option>'+CLASS_KEYS.map(ck=>'<option value="'+ck+'">'+esc(classLabel(ck))+'</option>').join("")+'</select>';
   const ov=openModal("학급 열기",body,()=>{const v=ov.querySelector("#sel-ck").value; if(v)cb(v);},"열기");
 }
-function doPrint(){
+function doPrint(mode){
+  mode=mode||"full";
   const r=rosterOf(S.ck,S.sid); const recs=recordsSorted();
   const b=(S.student&&S.student.books)||{}; const c=(S.student&&S.student.counseling)||{};
-  const bookRows=list=>{const a=Object.values(list||{}).filter(x=>x&&(x.title||x.activity));return a.length?a.map(x=>'<tr><td>'+esc(x.title||"")+'</td><td>'+esc(x.activity||"")+'</td></tr>').join(""):'<tr><td colspan="2" style="color:#888">등록 없음</td></tr>';};
-  const recCards=recs.length?recs.map((rec,i)=>'<div class="p-rec"><div class="prt">'+String(i+1).padStart(2,"0")+'. '+esc(rec.name||"")+' <span class="p-badge">'+esc(rec.domain||"")+'</span></div>'+
-    '<table><tr><td class="k">세부 주제</td><td>'+nl2br(rec.subtopic)+'</td></tr><tr><td class="k">동기·연계</td><td>'+nl2br(rec.motivation)+'</td></tr>'+
-    '<tr><td class="k">활동 내용</td><td>'+nl2br(rec.content)+'</td></tr><tr><td class="k">배운 점</td><td>'+nl2br(rec.learned)+'</td></tr></table></div>').join(""):'<div style="color:#888">기록된 활동이 없습니다.</div>';
+  const career=(S.student&&S.student.career)||"";
+  const today=new Date().toLocaleDateString("ko-KR");
+  const dash='<span class="p-empty">—</span>';
+  const head='<div class="p-h"><div class="p-h-l"><div class="p-kick">'+esc(SCHOOL_GRADE)+' 창의적 체험활동</div>'+
+    '<div class="pt">'+(mode==="counsel"?"자율진로활동 상담 기록":"활동 기록 및 상담")+'</div></div>'+
+    '<div class="p-h-r"><table class="p-meta"><tr><td>학급</td><th>'+esc(classLabel(S.ck))+'</th><td>번호</td><th>'+String(r?r.no:0).padStart(2,"0")+'</th></tr>'+
+    '<tr><td>이름</td><th>'+esc(r?r.name:"")+'</th><td>출력일</td><th>'+today+'</th></tr></table></div></div>';
+  const careerBox='<div class="p-career"><span class="p-career-l">진로 희망</span><span class="p-career-v">'+(esc(career)||dash)+'</span></div>';
+  const counselBox='<div class="p-counsel">'+
+      '<div class="pcrow"><div class="pck">자율 활동 상담</div><div class="pcv">'+(nl2br(c.autoDesign)||dash)+'</div></div>'+
+      '<div class="pcrow"><div class="pck">진로 활동 상담</div><div class="pcv">'+(nl2br(c.careerDesign)||dash)+'</div></div>'+
+      '<div class="pcrow"><div class="pck">종합 소견</div><div class="pcv">'+(nl2br(c.summary)||dash)+'</div></div></div>';
+
+  let inner=head+careerBox;
+  if(mode==="full"){
+    const domChip=d=>'<span class="p-badge '+domainClass(d)+'">'+esc(d||"자율")+'</span>';
+    const recBlocks=recs.length?recs.map((rec,i)=>'<div class="p-rec"><div class="prt">'+String(i+1).padStart(2,"0")+'. '+esc(rec.name||"")+' '+domChip(rec.domain)+'</div>'+
+      '<table class="p-fields"><tr><td class="k">세부 주제</td><td>'+(nl2br(rec.subtopic)||dash)+'</td></tr><tr><td class="k">동기·연계</td><td>'+(nl2br(rec.motivation)||dash)+'</td></tr>'+
+      '<tr><td class="k">활동 내용</td><td>'+(nl2br(rec.content)||dash)+'</td></tr><tr><td class="k">배운 점</td><td>'+(nl2br(rec.learned)||dash)+'</td></tr></table></div>').join(""):'<div class="p-empty" style="padding:8px 2px">기록된 활동이 없습니다.</div>';
+    const bookRows=list=>{const a=Object.values(list||{}).filter(x=>x&&(x.title||x.activity));return a.length?a.map(x=>'<tr><td>'+esc(x.title||"")+'</td><td>'+esc(x.activity||"")+'</td></tr>').join(""):'<tr><td colspan="2" class="p-empty">등록 없음</td></tr>';};
+    inner+='<div class="p-sec"><h3>활동 기록</h3>'+recBlocks+'</div>'+
+      '<div class="p-sec p-book"><h3>도서 목록 · 연계성</h3>'+
+        '<table><thead><tr><th style="width:42%">자율 도서</th><th>연계 활동</th></tr></thead><tbody>'+bookRows(b.auto)+'</tbody></table>'+
+        '<table style="margin-top:6px"><thead><tr><th style="width:42%">진로 도서</th><th>연계 활동</th></tr></thead><tbody>'+bookRows(b.career)+'</tbody></table></div>'+
+      '<div class="p-sec"><h3>자율진로활동 상담</h3>'+counselBox+'</div>';
+  } else {
+    inner+='<div class="p-sec"><h3>자율진로활동 상담</h3>'+counselBox+'</div>';
+  }
+  $("#print-root").innerHTML='<div class="p-doc">'+inner+'<div class="p-foot">본 문서는 창의적 체험활동 기록·상담 워크스페이스에서 출력되었습니다.</div></div>';
+  window.print();
+}
+function printRoster(){
+  const ros=S.roster||{};
+  const rows=rosterArr(S.ck).map(r=>{const pw=(ros[r.sid]&&ros[r.sid].pw)||"";
+    return '<tr><td class="rn">'+String(r.no).padStart(2,"0")+'</td><td class="rnm">'+esc(r.name)+'</td><td class="rpw">'+esc(pw||"—")+'</td></tr>';}).join("");
   $("#print-root").innerHTML='<div class="p-doc">'+
-    '<div class="p-h"><div><div class="pt">창의적 체험활동 기록·설계</div><div class="pm">'+esc(classLabel(S.ck))+' · '+String(r?r.no:0).padStart(2,"0")+'번 · '+esc(r?r.name:"")+'</div></div><div class="pm">'+new Date().toLocaleDateString("ko-KR")+'</div></div>'+
-    '<div class="p-sec"><h3>■ 활동 기록</h3>'+recCards+'</div>'+
-    '<div class="p-sec p-book"><h3>■ 도서 목록 · 연계성</h3>'+
-      '<table><thead><tr><th>자율 도서</th><th>연계 활동</th></tr></thead><tbody>'+bookRows(b.auto)+'</tbody></table>'+
-      '<table style="margin-top:8px"><thead><tr><th>진로 도서</th><th>연계 활동</th></tr></thead><tbody>'+bookRows(b.career)+'</tbody></table></div>'+
-    '<div class="p-sec"><h3>■ 자율·진로 설계 상담 소견</h3><div class="p-counsel">'+
-      '<div class="pcrow"><div class="pck">[자율 활동 설계]</div>'+(nl2br(c.autoDesign)||'<span style="color:#888">—</span>')+'</div>'+
-      '<div class="pcrow"><div class="pck">[진로 활동 설계]</div>'+(nl2br(c.careerDesign)||'<span style="color:#888">—</span>')+'</div>'+
-      '<div class="pcrow"><div class="pck">[종합 소견]</div>'+(nl2br(c.summary)||'<span style="color:#888">—</span>')+'</div></div></div>'+
-  '</div>';
+    '<div class="p-h"><div class="p-h-l"><div class="p-kick">'+esc(SCHOOL_GRADE)+' 창의적 체험활동</div>'+
+      '<div class="pt">'+esc(classLabel(S.ck))+' 로그인 안내</div></div>'+
+      '<div class="p-h-r"><table class="p-meta"><tr><td>학급</td><th>'+esc(classLabel(S.ck))+'</th></tr><tr><td>출력일</td><th>'+new Date().toLocaleDateString("ko-KR")+'</th></tr></table></div></div>'+
+    '<p class="p-note">아래는 학생별 초기 로그인 비밀번호입니다. 학생은 로그인 후 <b>비밀번호 변경</b>으로 직접 바꿀 수 있습니다. 개인정보이니 배부 시 유의해 주세요.</p>'+
+    '<table class="p-roster"><thead><tr><th>번호</th><th>이름</th><th>비밀번호</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+    '<div class="p-foot">로그인 주소에서 반 → 이름 선택 후 위 비밀번호로 입장합니다.</div></div>';
   window.print();
 }
 function openModal(title,body,onOk,okLabel,danger){
