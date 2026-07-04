@@ -415,8 +415,8 @@ const DEFAULT_ACTIVITIES = [
   {id:"d08",domain:"자율",name:"앎을 기반으로 삶을 배로 나누는 프로젝트(자율)",org:"3학년",period:"3-6월",content:"학교·지역사회 문제 해결 프로젝트 → 여러 교과를 융합한 지식 연계 산출물 제작·공유."},
   {id:"d09",domain:"자율",name:"인문학 아고라",org:"국어과",period:"6-7월",content:"지정 도서 탐독 후 대주제와 연계해 자신만의 탐구 주제를 설정하고 보고서를 작성한다."},
   {id:"d10",domain:"자율",name:"교내 과학의 달 행사",org:"과학관",period:"3-4월",content:"최신 과학기술 이슈 정리 및 진로 연계 미래 시나리오 작성 → 인포그래픽 제출."},
-  {id:"d11",domain:"자율/진로",name:"자율주행 AI실",org:"3학년",period:"7/4",content:"자율주행의 기본 원리 및 모델링."},
-  {id:"d12",domain:"자율/진로",name:"양자센싱 메이커(충북대)",org:"3학년",period:"7/11",content:"양자 센싱 & ODMR 이론 입문 : 양자 스핀, 바이오이미징 QuantumBox 광학계 조립."},
+  {id:"d11",domain:"진로",name:"자율주행 AI실",org:"3학년",period:"7/4",content:"자율주행의 기본 원리 및 모델링."},
+  {id:"d12",domain:"진로",name:"양자센싱 메이커(충북대)",org:"3학년",period:"7/11",content:"양자 센싱 & ODMR 이론 입문 : 양자 스핀, 바이오이미징 QuantumBox 광학계 조립."},
   {id:"d13",domain:"진로",name:"과학 이론(개념) 탐구",org:"학급",period:"상시",content:"교과 학습·책 내용을 토대로 궁금했던 과학 개념·이론을 선정해 학문적으로 탐구하고 관련 기술을 소개한다."},
   {id:"d14",domain:"진로",name:"진로 연계 독서 활동",org:"학급",period:"상시",content:"희망 진로와 관련된 책을 자유롭게 선정해 탐독 후 과학 서평을 작성한다."},
   {id:"d15",domain:"진로",name:"진로 연계 자율 탐구",org:"학급",period:"상시",content:"희망 진로와 관련해 질문을 생성하고 심화 이론 탐구 활동을 수행한다."},
@@ -530,7 +530,7 @@ function renderTopbar(){
   else if(S.role==="super"){whoChip='<span class="who-chip">⭐ 관리자</span>';}
   const notHome = S.view!=="home";
   $("#topbar").innerHTML=
-    '<div class="brand"><span class="mark">CEA</span>'+
+    '<div class="brand"><span class="mark">1</span>'+
     '<div><div class="ttl">창의적 체험활동 기록 및 상담 워크스페이스</div><div class="sub">'+esc(SCHOOL_GRADE)+' 창의적 체험활동</div></div></div>'+
     (notHome?'<button class="btn ghost sm" id="nav-back">← 뒤로</button><button class="btn ghost sm" id="nav-home">⌂ 처음</button>':"")+
     '<div class="spacer"></div>'+whoChip+
