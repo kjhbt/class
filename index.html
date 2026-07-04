@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>3학년 창의적 체험활동 · 기록 및 상담</title>
+<title>3학년 창의적 체험활동 · 기록/설계실</title>
 <link rel="stylesheet" as="style" crossorigin
   href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -243,6 +243,13 @@ a{color:var(--auto)}
 .saveind .d{width:6px;height:6px;border-radius:50%;background:currentColor}
 .split2{display:grid;grid-template-columns:1fr 340px;gap:18px;align-items:start}
 @media(max-width:860px){ .split2{grid-template-columns:1fr} }
+.jinhak-ov{position:fixed;inset:0;z-index:80;background:rgba(20,33,29,.55);backdrop-filter:blur(3px);display:flex;padding:26px;animation:fade .16s ease}
+.jinhak-box{background:var(--paper);border:1px solid var(--line);border-radius:16px;box-shadow:0 30px 80px rgba(0,0,0,.3);width:100%;max-width:1180px;margin:auto;height:100%;display:flex;flex-direction:column;overflow:hidden}
+.jinhak-bar{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--line);background:var(--surface);flex-wrap:wrap}
+.jinhak-bar strong{font-size:15px;letter-spacing:-.01em}
+.jinhak-who{font-family:var(--mono);font-size:12px;color:var(--muted);padding:3px 9px;border:1px solid var(--line);border-radius:20px}
+.jinhak-if{flex:1;width:100%;border:none;background:#fff}
+@media(max-width:680px){ .jinhak-ov{padding:0} .jinhak-box{border-radius:0;max-width:none} }
 
 /* ===== 모바일 최적화 ===== */
 html{-webkit-text-size-adjust:100%}
@@ -415,8 +422,8 @@ const DEFAULT_ACTIVITIES = [
   {id:"d08",domain:"자율",name:"앎을 기반으로 삶을 배로 나누는 프로젝트(자율)",org:"3학년",period:"3-6월",content:"학교·지역사회 문제 해결 프로젝트 → 여러 교과를 융합한 지식 연계 산출물 제작·공유."},
   {id:"d09",domain:"자율",name:"인문학 아고라",org:"국어과",period:"6-7월",content:"지정 도서 탐독 후 대주제와 연계해 자신만의 탐구 주제를 설정하고 보고서를 작성한다."},
   {id:"d10",domain:"자율",name:"교내 과학의 달 행사",org:"과학관",period:"3-4월",content:"최신 과학기술 이슈 정리 및 진로 연계 미래 시나리오 작성 → 인포그래픽 제출."},
-  {id:"d11",domain:"진로",name:"자율주행 AI실",org:"3학년",period:"7/4",content:"자율주행의 기본 원리 및 모델링."},
-  {id:"d12",domain:"진로",name:"양자센싱 메이커(충북대)",org:"3학년",period:"7/11",content:"양자 센싱 & ODMR 이론 입문 : 양자 스핀, 바이오이미징 QuantumBox 광학계 조립."},
+  {id:"d11",domain:"자율/진로",name:"자율주행 AI실",org:"3학년",period:"7/4",content:"자율주행의 기본 원리 및 모델링."},
+  {id:"d12",domain:"자율/진로",name:"양자센싱 메이커(충북대)",org:"3학년",period:"7/11",content:"양자 센싱 & ODMR 이론 입문 : 양자 스핀, 바이오이미징 QuantumBox 광학계 조립."},
   {id:"d13",domain:"진로",name:"과학 이론(개념) 탐구",org:"학급",period:"상시",content:"교과 학습·책 내용을 토대로 궁금했던 과학 개념·이론을 선정해 학문적으로 탐구하고 관련 기술을 소개한다."},
   {id:"d14",domain:"진로",name:"진로 연계 독서 활동",org:"학급",period:"상시",content:"희망 진로와 관련된 책을 자유롭게 선정해 탐독 후 과학 서평을 작성한다."},
   {id:"d15",domain:"진로",name:"진로 연계 자율 탐구",org:"학급",period:"상시",content:"희망 진로와 관련해 질문을 생성하고 심화 이론 탐구 활동을 수행한다."},
@@ -530,7 +537,7 @@ function renderTopbar(){
   else if(S.role==="super"){whoChip='<span class="who-chip">⭐ 관리자</span>';}
   const notHome = S.view!=="home";
   $("#topbar").innerHTML=
-    '<div class="brand"><span class="mark">1</span>'+
+    '<div class="brand"><span class="mark">CEA</span>'+
     '<div><div class="ttl">창의적 체험활동 기록 및 상담 워크스페이스</div><div class="sub">'+esc(SCHOOL_GRADE)+' 창의적 체험활동</div></div></div>'+
     (notHome?'<button class="btn ghost sm" id="nav-back">← 뒤로</button><button class="btn ghost sm" id="nav-home">⌂ 처음</button>':"")+
     '<div class="spacer"></div>'+whoChip+
@@ -682,6 +689,7 @@ function viewStudent(){
       '<div class="meta">'+esc(classLabel(S.ck))+' · '+String(r?r.no:0).padStart(2,"0")+'번'+(S.role!=="student"?" · "+(S.role==="super"?"관리자":"교사")+" 편집":"")+'</div></div></div>'+
       '<div class="spacer"></div>'+
       (S.role==="student"?'<button class="btn ghost sm" id="btn-chpw">🔑 비밀번호 변경</button>':"")+
+      ((S.role==="teacher"||S.role==="super")?'<button class="btn career sm" id="btn-jinhak">🎓 진학 상담</button>':"")+
       ((S.role==="teacher"||S.role==="super")?'<button class="btn ghost sm" id="btn-back">← 학급 개요</button>':"")+
     '</div>'+
     careerBar+
@@ -796,6 +804,7 @@ function bindStudent(){
   const pc=$("#print-counsel"); if(pc)pc.onclick=()=>doPrint("counsel");
   const bp=$("#btn-print"); if(bp)bp.onclick=()=>doPrint("full");
   const bb=$("#btn-back"); if(bb)bb.onclick=()=>{clearSubs(); enterClass(S.ck);};
+  const bj=$("#btn-jinhak"); if(bj)bj.onclick=()=>{ const r=rosterOf(S.ck,S.sid); openJinhak({_ck:S.ck,cls:ckNum(S.ck),no:r?r.no:"",name:r?r.name:""}); };
   const cw=$("#btn-chpw"); if(cw)cw.onclick=changeMyPassword;
   bindBooks(); bindAddPicker();
 }
@@ -873,6 +882,7 @@ function viewClass(){
     '<div class="ws-head"><div class="who"><div class="avatar" style="background:var(--career)">'+(S.role==="super"?"⭐":esc((S.teacher&&S.teacher.name||"교").slice(0,1)))+'</div>'+
       '<div><div class="nm">'+esc(classLabel(S.ck))+'</div><div class="meta">'+(S.role==="super"?"관리자":esc(S.teacher?S.teacher.name+" 선생님":""))+' · 학급 관리</div></div></div>'+
       '<div class="spacer"></div>'+
+      '<button class="btn career sm" id="cls-jinhak">🎓 진학 상담</button>'+
       (multi?'<button class="btn ghost sm" id="cls-switch">↔ 다른 담당 반</button>':"")+
       (S.role==="super"?'<button class="btn ghost sm" id="cls-super">← 관리자 홈</button>':"")+
     '</div>'+
@@ -942,6 +952,7 @@ function bindClass(){
   document.querySelectorAll(".atab").forEach(t=>t.onclick=()=>{S.adminTab=t.dataset.at;$("#app").innerHTML=viewClass();bindClass();});
   const pr=$("#print-roster"); if(pr)pr.onclick=printRoster;
   const sw=$("#cls-switch"); if(sw)sw.onclick=()=>{clearSubs();S.view="tea-classes";render();};
+  const cj=$("#cls-jinhak"); if(cj)cj.onclick=()=>openJinhak({cls:ckNum(S.ck),tab:"susi-card"});
   const su=$("#cls-super"); if(su)su.onclick=()=>{clearSubs();enterSuper();};
   document.querySelectorAll(".a-stu .open").forEach(b=>b.onclick=()=>enterStudent(S.ck,b.dataset.sid,S.role));
   document.querySelectorAll(".pw-i").forEach(inp=>inp.oninput=()=>saveDebounced("pw-"+inp.dataset.sid,"classes/"+S.ck+"/roster/"+inp.dataset.sid,{pw:inp.value}));
@@ -1149,6 +1160,27 @@ function printRoster(){
     '<table class="p-roster"><thead><tr><th>번호</th><th>이름</th><th>비밀번호</th></tr></thead><tbody>'+rows+'</tbody></table>'+
     '<div class="p-foot">로그인 주소에서 반 → 이름 선택 후 위 비밀번호로 입장합니다.</div></div>';
   window.print();
+}
+const ckNum=ck=>parseInt(String(ck||"").replace(/[^0-9]/g,""),10)||"";
+function openJinhak(opts){
+  opts=opts||{}; const p=[];
+  if(opts.cls!=null&&opts.cls!=="") p.push("cls="+encodeURIComponent(opts.cls));
+  if(opts.no!=null&&opts.no!=="") p.push("no="+encodeURIComponent(opts.no));
+  if(opts.name) p.push("name="+encodeURIComponent(opts.name));
+  if(opts.tab) p.push("tab="+encodeURIComponent(opts.tab));
+  const src="jinhak.html"+(p.length?"?"+p.join("&"):"");
+  const ov=document.createElement("div"); ov.className="jinhak-ov";
+  ov.innerHTML='<div class="jinhak-box"><div class="jinhak-bar"><strong>🎓 진학 상담</strong>'+
+    (opts.name?'<span class="jinhak-who">'+esc((opts._ck?classLabel(opts._ck):(opts.cls?opts.cls+"반":"")))+' · '+esc(opts.name)+'</span>':'')+
+    '<div style="flex:1"></div><a class="btn ghost sm" href="'+src+'" target="_blank" rel="noopener">새 창으로</a>'+
+    '<button class="btn ghost sm" id="jinhak-close">닫기 ✕</button></div>'+
+    '<iframe class="jinhak-if" src="'+src+'" title="진학 상담"></iframe></div>';
+  document.body.appendChild(ov);
+  const close=()=>{ ov.remove(); document.removeEventListener("keydown",onEsc); };
+  const onEsc=e=>{ if(e.key==="Escape") close(); };
+  ov.querySelector("#jinhak-close").onclick=close;
+  ov.addEventListener("click",e=>{ if(e.target===ov) close(); });
+  document.addEventListener("keydown",onEsc);
 }
 function openModal(title,body,onOk,okLabel,danger){
   okLabel=okLabel||"확인";
