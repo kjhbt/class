@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>3학년 창의적 체험활동 · 기록/설계실</title>
+<title>3학년 창의적 체험활동 · 기록 및 상담</title>
 <link rel="stylesheet" as="style" crossorigin
   href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -27,7 +27,7 @@
 html,body{margin:0;padding:0}
 body{font-family:var(--sans);color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;line-height:1.55;font-size:15px;
   background-image:linear-gradient(rgba(14,124,107,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(14,124,107,.035) 1px,transparent 1px);
-  background-size:26px 26px;background-attachment:fixed;}
+  background-size:26px 26px;}
 button{font-family:inherit;cursor:pointer}
 input,textarea,select{font-family:inherit;font-size:15px;color:var(--ink)}
 a{color:var(--auto)}
@@ -114,8 +114,12 @@ a{color:var(--auto)}
 .ws-head .who .nm{font-size:20px;font-weight:700;letter-spacing:-.01em;line-height:1.1}
 .ws-head .who .meta{font-family:var(--mono);font-size:11.5px;color:var(--faint)}
 .ws-head .spacer{flex:1}
-.tabstrip{display:flex;gap:4px;align-items:flex-end;flex-wrap:wrap;border-bottom:2px solid var(--line);padding:0 2px}
-.tab-grp{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--faint);align-self:center;padding:0 6px 6px 8px;display:inline-flex;align-items:center;gap:5px;text-transform:uppercase}
+.tabstrip{display:flex;gap:4px;align-items:flex-end;border-bottom:2px solid var(--line);padding:0 2px;min-width:0}
+.tab-scroll{display:flex;gap:4px;align-items:flex-end;flex:1 1 auto;min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}
+.tab-scroll::-webkit-scrollbar{height:6px}
+.tab-scroll::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:6px}
+.tabstrip>.tab{flex:0 0 auto}
+.tab-grp{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--faint);align-self:center;padding:0 6px 6px 8px;display:inline-flex;align-items:center;gap:5px;text-transform:uppercase;flex:0 0 auto;white-space:nowrap}
 .career-bar{display:flex;align-items:center;gap:12px;background:linear-gradient(90deg,var(--auto-soft),#fff);border:1px solid var(--line);border-left:4px solid var(--auto);border-radius:var(--r-sm);padding:11px 15px;margin-bottom:16px}
 .career-bar .cl{font-weight:700;font-size:13px;color:var(--auto-ink);white-space:nowrap;letter-spacing:-.01em}
 .career-bar .career-f{flex:1;background:#fff;margin:0}
@@ -272,10 +276,10 @@ body{overflow-x:hidden}
   .career-bar{flex-wrap:wrap;gap:8px}
   .career-bar .cl{width:100%}
   .career-bar .career-f{flex:1 1 100%}
-  .tabstrip{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:0}
-  .tabstrip::-webkit-scrollbar{height:0;display:none}
+  .tabstrip{padding:0}
   .tab,.tab-grp{flex:0 0 auto}
-  .tab{max-width:60vw}
+  .tab{max-width:46vw}
+  .tab .tt{max-width:34vw}
   .tabbody{padding:16px 14px}
   .field{margin-top:14px}
   .ta{min-height:88px}.ta.big{min-height:120px}
@@ -359,14 +363,19 @@ body{overflow-x:hidden}
 <div id="print-root"></div>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script>
 /* ============================================================================
    설정 (CONFIG) — 배포 전 이 부분만 수정
    1) Firebase 콘솔 → Realtime Database → 웹 앱 등록 → firebaseConfig 복사
    2) FIREBASE_CONFIG 붙여넣기 (databaseURL 필수)
    3) SUPER_PASSWORD(관리자=선생님 본인) 변경
-   본 앱은 간편 잠금(UI lock) 방식: 비밀번호가 DB에 평문 저장되며 우회 가능.
-   학급 내부 관리용으로만 쓰고 중요한 개인 비번을 재사용하지 마세요.
+   4) [보안] Firebase 콘솔 → Authentication → 로그인 방법 → '익명' 사용 설정
+   5) [보안] Realtime Database 규칙을 아래로 바꾸고 게시:
+        { "rules": { ".read": "auth != null", ".write": "auth != null" } }
+      → 앱을 실제로 연 사용자(익명 로그인 완료)만 DB 접근. 외부 직접 접근 차단.
+   * 익명 인증을 켜지 않으면 화면이 비어 보입니다(권한 거부). 반드시 4·5를 함께 적용하세요.
+   * 반 내부 접근 구분(학생/교사)은 기존의 이름+비밀번호(UI 잠금)가 담당합니다.
    ============================================================================ */
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyBH3HYCnkY2Xp46S53eQEP-zC6Dc-SdpBc",
@@ -418,17 +427,27 @@ const DEFAULT_ACTIVITIES = [
 ];
 const DEF_BY_ID = Object.fromEntries(DEFAULT_ACTIVITIES.map(a=>[a.id,a]));
 const Store = (()=>{
-  let mode="local", db=null; const local={}; const subs={}; const LS="cea3_db";
+  let mode="local", db=null, auth=null, readyP=Promise.resolve(); const local={}; const subs={}; const LS="cea3_db";
   function loadLS(){ try{const s=localStorage.getItem(LS); if(s) Object.assign(local,JSON.parse(s));}catch(e){} }
   function saveLS(){ try{localStorage.setItem(LS,JSON.stringify(local));}catch(e){} }
   function initFB(){ if(!FIREBASE_CONFIG.apiKey||!FIREBASE_CONFIG.databaseURL) return false;
-    try{ firebase.initializeApp(FIREBASE_CONFIG); db=firebase.database(); mode="firebase"; return true; }
-    catch(e){ console.warn("FB init 실패→local",e); return false; } }
+    try{
+      firebase.initializeApp(FIREBASE_CONFIG); db=firebase.database(); mode="firebase";
+      try{
+        auth=firebase.auth();
+        readyP=new Promise(res=>{ let done=false; const fin=()=>{if(!done){done=true;res();}};
+          auth.onAuthStateChanged(u=>{ if(u) fin(); });
+          auth.signInAnonymously().catch(e=>{ console.warn("익명 로그인 실패 — 콘솔에서 Anonymous 인증을 켜세요.",e&&e.code); fin(); });
+          setTimeout(fin,7000); });
+      }catch(e){ console.warn("auth 초기화 실패",e); }
+      return true;
+    }catch(e){ console.warn("FB init 실패→local",e); return false; } }
   const getIn=p=>{let o=local; for(const k of p.split("/")){ if(o==null)return null; o=o[k]; } return o===undefined?null:o;};
   const setIn=(p,v)=>{const ks=p.split("/");let o=local;for(let i=0;i<ks.length-1;i++){o[ks[i]]=o[ks[i]]||{};o=o[ks[i]];} if(v===null)delete o[ks[ks.length-1]];else o[ks[ks.length-1]]=v;};
   const notify=p=>{Object.keys(subs).forEach(q=>{ if(p===q||p.startsWith(q+"/")||q.startsWith(p+"/")) subs[q].forEach(cb=>cb(getIn(q))); });};
   const api={
     mode:()=>mode,
+    ready:()=>readyP,
     subscribe(p,cb){ if(mode==="firebase"){const r=db.ref(p);const h=r.on("value",s=>cb(s.val()));return()=>r.off("value",h);} (subs[p]=subs[p]||new Set()).add(cb); cb(getIn(p)); return()=>subs[p]&&subs[p].delete(cb); },
     async get(p){ if(mode==="firebase"){const s=await db.ref(p).get();return s.val();} return getIn(p); },
     async set(p,v){ if(mode==="firebase")return db.ref(p).set(v); setIn(p,v);saveLS();notify(p); },
@@ -445,7 +464,8 @@ const $=(s,r=document)=>r.querySelector(s);
 const esc=s=>(s==null?"":String(s)).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const nl2br=s=>esc(s).replace(/\n/g,"<br>");
 const clearSubs=()=>{S.subs.forEach(u=>{try{u()}catch(e){}});S.subs=[];};
-const rosterArr=ck=>(DEFAULT_ROSTERS[ck]||[]).map((nm,i)=>({no:i+1,name:nm,sid:ck+"-"+String(i+1).padStart(2,"0")}));
+const _rosterCache={};
+const rosterArr=ck=>_rosterCache[ck]||(_rosterCache[ck]=(DEFAULT_ROSTERS[ck]||[]).map((nm,i)=>({no:i+1,name:nm,sid:ck+"-"+String(i+1).padStart(2,"0")})));
 const rosterOf=(ck,sid)=>rosterArr(ck).find(r=>r.sid===sid);
 const classLabel=ck=>((S.classCfg[ck]&&S.classCfg[ck].label)||defaultLabel(ck));
 const domainClass=d=>d==="진로"?"career":d==="자율/진로"?"both":"auto";
@@ -478,9 +498,18 @@ async function ensurePasswords(ck){
 }
 const isEditingPw=()=>{const a=document.activeElement;return !!(a&&a.classList&&a.classList.contains("pw-i"));};
 let _lastClassJSON="";
+function classSig(){ // 학생 전체 텍스트 대신 카운트/비번/활동 키만 → 다른 학생이 타이핑해도 개요 재렌더 안 함
+  const all=S.allStudents||{}, ros=S.roster||{};
+  let s="";
+  for(const r of rosterArr(S.ck)){ const st=all[r.sid]||{}; const rc=st.records?Object.keys(st.records).length:0;
+    const c=st.counseling||{}; let cs=0; if(c.autoDesign&&c.autoDesign.trim())cs++; if(c.careerDesign&&c.careerDesign.trim())cs++; if(c.summary&&c.summary.trim())cs++;
+    const pw=(ros[r.sid]&&ros[r.sid].pw)||""; s+=r.sid+":"+rc+":"+cs+":"+pw+"|"; }
+  const acts=JSON.stringify([S.classActs,S.schoolActs,S.defOverrides]);
+  return S.adminTab+"#"+s+"#"+acts+"#"+(((S.classCfg||{})[S.ck]||{}).label||"");
+}
 function rerenderClass(){
   if(S.view!=="class"||isEditingPw()) return;
-  const j=JSON.stringify([S.adminTab,S.allStudents,S.roster,S.classActs,S.schoolActs,S.defOverrides,(S.classCfg||{})[S.ck]]);
+  const j=classSig();
   if(j===_lastClassJSON) return; _lastClassJSON=j;
   $("#app").innerHTML=viewClass(); bindClass();
 }
@@ -633,12 +662,15 @@ function viewStudent(){
   const recTab=(rec,idx,dc)=>'<button class="tab '+(S.tab===rec.id?"active":"")+'" data-tab="'+rec.id+'" style="--tabc:var(--'+dc+')">'+
     '<span class="tno">'+String(idx).padStart(2,"0")+'</span><span class="dot '+dc+'"></span>'+
     '<span class="tt">'+esc(rec.name||"제목 없음")+'</span><span class="x" data-del="'+rec.id+'">×</span></button>';
-  const tabs=[
-    '<button class="tab books '+(S.tab==="books"?"active":"")+'" data-tab="books"><span class="tno">📚</span><span class="tt">도서 · 연계</span></button>',
+  const midTabs=[
     ...(autoRecs.length?['<span class="tab-grp"><span class="dot auto"></span>자율</span>',...autoRecs.map((x,i)=>recTab(x,i+1,"auto"))]:[]),
-    ...(careerRecs.length?['<span class="tab-grp"><span class="dot career"></span>진로</span>',...careerRecs.map((x,i)=>recTab(x,i+1,"career"))]:[]),
-    '<button class="tab add '+(S.tab==="add"?"active":"")+'" data-tab="add"><span>＋ 활동 추가</span></button>'
+    ...(careerRecs.length?['<span class="tab-grp"><span class="dot career"></span>진로</span>',...careerRecs.map((x,i)=>recTab(x,i+1,"career"))]:[])
   ].join("");
+  const tabstrip='<div class="tabstrip">'+
+    '<button class="tab books '+(S.tab==="books"?"active":"")+'" data-tab="books"><span class="tno">📚</span><span class="tt">도서</span></button>'+
+    '<div class="tab-scroll">'+midTabs+'</div>'+
+    '<button class="tab add '+(S.tab==="add"?"active":"")+'" data-tab="add"><span>＋ 추가</span></button>'+
+  '</div>';
   let body = S.tab==="books"?viewBooks() : S.tab==="add"?viewAddPicker() : (()=>{const rec=recs.find(x=>x.id===S.tab);return rec?viewRecord(rec):'<div class="empty">활동을 선택하세요.</div>';})();
   const career=(S.student&&S.student.career)||"";
   const careerBar='<div class="career-bar"><span class="cl">진로 희망</span>'+
@@ -653,7 +685,7 @@ function viewStudent(){
       ((S.role==="teacher"||S.role==="super")?'<button class="btn ghost sm" id="btn-back">← 학급 개요</button>':"")+
     '</div>'+
     careerBar+
-    '<div class="ws"><div><div class="tabstrip">'+tabs+'</div><div class="tabbody" id="tabbody">'+body+'</div></div>'+viewCounsel()+'</div></div>';
+    '<div class="ws"><div>'+tabstrip+'<div class="tabbody" id="tabbody">'+body+'</div></div>'+viewCounsel()+'</div></div>';
 }
 function viewBooks(){
   const b=(S.student&&S.student.books)||{};
@@ -674,16 +706,17 @@ function viewRecord(rec){
   const seg='<div class="seg dom-seg" data-rid="'+rec.id+'">'+
     '<button data-d="자율" class="'+(d==="자율"?"on":"")+'">자율</button>'+
     '<button data-d="진로" class="'+(d==="진로"?"on career":"")+'">진로</button></div>';
-  const ta=(key,label,hint,val,big)=>'<div class="field"><label><span class="l">'+label+'</span><span class="hint">'+hint+'</span></label>'+
-    '<textarea class="ta '+(big?"big":"")+' rec-f" data-f="'+key+'" placeholder="'+hint+'">'+esc(val||"")+'</textarea></div>';
+  // label 옆 hint = 무엇을 쓰는지, 칸 placeholder = 간단한 예시
+  const fld=(key,label,hint,ph,val,big)=>'<div class="field"><label><span class="l">'+label+'</span>'+(hint?'<span class="hint">'+hint+'</span>':"")+'</label>'+
+    '<textarea class="ta '+(big?"big":"")+' rec-f" data-f="'+key+'" placeholder="'+esc(ph)+'">'+esc(val||"")+'</textarea></div>';
   return '<div class="rec-title" style="justify-content:space-between"><div style="display:flex;align-items:center;gap:10px"><span class="eyebrow">영역</span>'+seg+'</div><span class="saveind" id="rec-save"></span></div>'+
-    '<div class="field"><label><span class="l">활동명</span><span class="hint">Activity name</span></label>'+
-      '<input class="inp rec-f" data-f="name" placeholder="활동명" value="'+esc(rec.name||"")+'"></div>'+
+    '<div class="field"><label><span class="l">활동명</span></label>'+
+      '<input class="inp rec-f" data-f="name" placeholder="" value="'+esc(rec.name||"")+'"></div>'+
     '<div class="field"><label><span class="l">세부 주제</span><span class="hint">구체적으로 무엇을 다뤘나</span></label>'+
       '<input class="inp rec-f" data-f="subtopic" placeholder="예) 촉매 연구가 산업에 미친 영향" value="'+esc(rec.subtopic||"")+'"></div>'+
-    ta("motivation","동기 · 다른 활동과의 연계","왜 시작했고 어떤 활동/독서와 이어졌는지",rec.motivation)+
-    ta("content","활동 내용","예) 학급 실장으로서 안건을 정리하고 회의를 진행함",rec.content,true)+
-    ta("learned","배운 점","알게 된 점·성장·다음 탐구 계획",rec.learned,true)+
+    fld("motivation","동기 · 다른 활동과의 연계","왜 시작했고 어떤 활동/독서와 이어졌는지","예) 진로 독서 중 생긴 궁금증에서 출발함",rec.motivation)+
+    fld("content","활동 내용","무엇을 어떻게 수행했는지","예) 학급 실장으로서 안건을 정리하고 회의를 진행함",rec.content,true)+
+    fld("learned","배운 점","알게 된 점·성장·다음 탐구 계획","예) 의사결정 과정을 이해하고 협업 역량을 키움",rec.learned,true)+
     '<div style="display:flex;justify-content:flex-end;margin-top:16px"><button class="btn danger sm" id="rec-del" data-id="'+rec.id+'">이 활동 삭제</button></div>';
 }
 function viewAddPicker(){
@@ -725,7 +758,18 @@ function viewCounsel(){
   '</aside>';
 }
 let _lastStudentJSON="";
-function studentSnap(){ return JSON.stringify([S.student,S.classActs,S.schoolActs,S.defOverrides]); }
+function studentSnap(){ // 가벼운 시그니처: 전체 텍스트를 직렬화하지 않고 구조 + 각 필드 길이만
+  const st=S.student||{}; const recs=st.records||{};
+  let r="";
+  for(const id in recs){const x=recs[id]||{}; r+=id+":"+(x.order||0)+":"+(x.domain||"")+":"+(x.name||"")+":"+(x.subtopic||"").length+","+(x.motivation||"").length+","+(x.content||"").length+","+(x.learned||"").length+"|";}
+  const bk=st.books||{}; let b="";
+  for(const dd of ["auto","career"]){const o=bk[dd]||{}; for(const id in o){b+=dd+id+":"+((o[id].title||"").length)+","+((o[id].activity||"").length)+";";}}
+  const c=st.counseling||{};
+  const cs=(c.autoDesign||"").length+"/"+(c.careerDesign||"").length+"/"+(c.summary||"").length;
+  const car=(st.career||"").length;
+  const acts=JSON.stringify([Object.keys(S.classActs||{}).sort(),S.classActs,S.schoolActs,S.defOverrides]);
+  return r+"#"+b+"#"+cs+"#"+car+"#"+acts+"#"+S.tab;
+}
 function touchStudentSnap(){ _lastStudentJSON=studentSnap(); }
 function rerenderStudentGuarded(){ const j=studentSnap(); if(j===_lastStudentJSON)return; _lastStudentJSON=j;
   const foc=captureFocus(); $("#app").innerHTML=viewStudent(); bindStudent(); restoreFocus(foc); }
@@ -1141,7 +1185,8 @@ function resume(){
   render();
 }
 window.addEventListener("popstate", ()=>{ if(S.view!=="home"){ goBack(); pushHist(); } });
-resume(); pushHist();
+if(Store.mode()==="firebase"){ $("#app").innerHTML='<div style="text-align:center;padding:60px 20px;color:var(--muted);font-family:var(--mono);font-size:13px">연결 중…</div>'; }
+Store.ready().then(()=>{ resume(); pushHist(); });
 </script>
 </body>
 </html>
