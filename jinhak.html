@@ -24,7 +24,7 @@
   --sh1:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
   --sh2:0 4px 6px rgba(0,0,0,.07),0 2px 4px rgba(0,0,0,.04);
   --sh3:0 20px 40px rgba(0,0,0,.12),0 8px 16px rgba(0,0,0,.06);
-  --f:system-ui,-apple-system,'Segoe UI','Noto Sans KR',sans-serif;
+  --f:'Pretendard','Pretendard Variable',-apple-system,system-ui,'Segoe UI','Malgun Gothic','Apple SD Gothic Neo',sans-serif;
   --sw:192px;
 }
 html,body{height:100%}
@@ -6008,7 +6008,41 @@ window.addEventListener('DOMContentLoaded',()=>{
       +'<h2>'+esc(school)+' 2026 입시결과 — '+tabLabel+naLabel+'</h2>'
       +tableHtml
       +'<scr'+'ipt>window.onload=function(){setTimeout(function(){window.print();},200);};</scr'+'ipt>'
-      +'</body></html>');
+      +'
+<script>
+/* === 창체 워크스페이스 연동: URL 파라미터로 학생 상담카드 자동 매칭 === */
+(function(){
+  function qp(k){try{return new URLSearchParams(location.search).get(k);}catch(e){return null;}}
+  var cls=qp('cls'), no=qp('no'), name=qp('name'), tab=qp('tab')||'susi-card';
+  if(!cls && !no && !name && !qp('tab')) return; // 파라미터 없으면 평소대로
+  function run(){
+    try{
+      if(typeof goto==='function') goto(tab);
+      if(tab!=='susi-card') return;
+      var cf=document.getElementById('card-cls-filter');
+      var sb=document.getElementById('card-search');
+      var found=null;
+      if(typeof getRoster==='function'){
+        var list=getRoster()||[];
+        if(cls&&no) found=list.find(function(s){return String(s.cls)===String(cls)&&String(s.no)===String(no);});
+        if(!found&&name) found=list.find(function(s){return (s.name||'').trim()===String(name).trim();});
+      }
+      if(found){
+        if(cf){ cf.value=String(found.cls); }
+        if(typeof filterCardList==='function') filterCardList();
+        if(typeof selectCardStu==='function') selectCardStu(found);
+      }else{
+        if(cf&&cls) cf.value=String(cls);
+        if(sb&&name) sb.value=String(name);
+        if(typeof filterCardList==='function') filterCardList();
+      }
+    }catch(e){ console.warn('[진학 연동] 자동 매칭 실패:',e); }
+  }
+  if(document.readyState==='loading') window.addEventListener('DOMContentLoaded',function(){setTimeout(run,350);});
+  else setTimeout(run,350);
+})();
+</script>
+</body></html>');
     w.document.close();
   };
 
