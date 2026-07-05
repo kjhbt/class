@@ -734,7 +734,7 @@ function viewAddPicker(){
       (a.domain==="자율/진로"?'<span class="badge both">자율·진로</span>':"")+(a.custom?'<span class="badge muted">반 활동</span>':"")+(added?'<span class="badge muted">추가됨</span>':"")+'</div>'+
       '<div class="pc">'+esc((a.content||"").slice(0,90))+((a.content||"").length>90?"…":"")+'</div><div class="pm">'+esc(a.org||"")+' · '+esc(a.period||"")+'</div></button>';};
   const sec=(t,dot,d)=>{const g=group(d);if(!g.length)return"";return '<div class="pick-sec"><h4><span class="dot '+dot+'"></span> '+t+' <span class="eyebrow" style="margin-left:4px">'+g.length+'</span></h4><div class="pick-grid">'+g.map(a=>card(a,d)).join("")+'</div></div>';};
-  const none = acts.length===0?'<div class="empty">담임 선생님이 이 반의 활동 목록을 아직 정리하지 않았어요.</div>':"";
+  const none = acts.length===0?'<div class="empty">담임 선생님이 우리 반의 활동 목록을 아직 정리하지 않았어요.</div>':"";
   return '<div class="rec-title"><span class="badge auto">ADD</span><strong style="font-size:16px">수행한 활동을 추가하세요</strong></div>'+
     '<p style="color:var(--muted);font-size:13px;margin:6px 0 18px">'+esc(classLabel(S.ck))+'에서 담임 선생님이 열어둔 활동만 표시됩니다. 자율·진로 활동은 양쪽에 보이지만, <b>한 영역에서만</b> 선택할 수 있어요.</p>'+
     none+sec("자율 활동","auto","자율")+sec("진로 활동","career","진로")+
@@ -982,11 +982,11 @@ function viewClassActivities(){
   return '<div class="split2">'+
     '<div class="panel" style="padding:18px 20px">'+
       '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap"><span class="badge muted">활동 목록</span>'+
-        '<strong style="font-size:15px">이 반에서 학생이 고를 수 있는 활동</strong><span class="eyebrow" style="margin-left:auto">사용 '+onCount+'개</span></div>'+
-      '<p style="font-size:12.5px;color:var(--muted);margin:0 0 14px">토글을 끄면 이 반 학생의 ‘활동 추가’ 목록에서 사라집니다. 학교 공통 활동은 관리자가 관리하고, 반 전용 활동은 오른쪽에서 추가·삭제할 수 있어요.</p>'+
+        '<strong style="font-size:15px">우리 반에서 학생이 고를 수 있는 활동</strong><span class="eyebrow" style="margin-left:auto">사용 '+onCount+'개</span></div>'+
+      '<p style="font-size:12.5px;color:var(--muted);margin:0 0 14px">토글을 끄면 우리 반 학생의 ‘활동 추가’ 목록에서 사라집니다. 학교 공통 활동은 관리자가 관리하고, 반 전용 활동은 오른쪽에서 추가·삭제할 수 있어요.</p>'+
       '<div style="margin-bottom:4px" class="eyebrow">학교 공통 활동</div>'+
       defList.map(defItem).join("")+
-      (customs.length?'<div style="margin:14px 0 4px" class="eyebrow">이 반 전용 활동</div>'+customs.map(cusItem).join(""):"")+
+      (customs.length?'<div style="margin:14px 0 4px" class="eyebrow">우리 반 전용 활동</div>'+customs.map(cusItem).join(""):"")+
     '</div>'+
     '<div class="panel" style="padding:18px 20px">'+
       '<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"><span class="badge auto">ADD</span><strong style="font-size:15px">반 전용 활동 추가</strong></div>'+
@@ -996,7 +996,7 @@ function viewClassActivities(){
       '<div class="field"><label class="eyebrow" style="display:block;margin:10px 0 6px">활동 내용</label><textarea class="ta" id="ca-content" placeholder="활동 설명"></textarea></div>'+
       '<div class="grid2"><div class="field"><label class="eyebrow" style="display:block;margin:10px 0 6px">주관</label><input class="inp" id="ca-org" placeholder="예) 학급"></div>'+
         '<div class="field"><label class="eyebrow" style="display:block;margin:10px 0 6px">시행</label><input class="inp" id="ca-period" placeholder="예) 상시"></div></div>'+
-      '<button class="btn primary" id="ca-create" style="width:100%;margin-top:14px;justify-content:center">이 반에 추가</button>'+
+      '<button class="btn primary" id="ca-create" style="width:100%;margin-top:14px;justify-content:center">우리 반에 추가</button>'+
       '<div class="divider"></div>'+
       '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span class="badge auto">LINK</span><strong style="font-size:15px">반 전용 링크</strong></div>'+
       '<p style="font-size:12px;color:var(--muted);margin:0 0 12px">여기에 넣은 링크는 우리 반 학생 상담 카드의 ‘활동 링크 바로가기’에 표시됩니다.</p>'+
@@ -1017,13 +1017,13 @@ function bindClass(){
   document.querySelectorAll(".pw-regen").forEach(b=>b.onclick=async()=>{const np=genPw();await Store.update("classes/"+S.ck+"/roster/"+b.dataset.sid,{pw:np});const inp=document.querySelector('.pw-i[data-sid="'+b.dataset.sid+'"]');if(inp)inp.value=np;toast("새 비밀번호: "+np,"ok");});
   document.querySelectorAll("[data-tog]").forEach(t=>t.onclick=async()=>{const id=t.dataset.tog;const s=(S.classActs||{})[id];const cur=!s||s.enabled!==false;await Store.update("classes/"+S.ck+"/activities/"+id,{ref:id,enabled:!cur});});
   document.querySelectorAll("[data-togc]").forEach(t=>t.onclick=async()=>{const id=t.dataset.togc;const s=(S.classActs||{})[id]||{};await Store.update("classes/"+S.ck+"/activities/"+id,{enabled:s.enabled===false});});
-  document.querySelectorAll("[data-delc]").forEach(b=>b.onclick=()=>openModal("반 활동 삭제","이 반 전용 활동을 삭제할까요?",async()=>{await Store.remove("classes/"+S.ck+"/activities/"+b.dataset.delc);toast("삭제됨","ok");},"삭제",true));
+  document.querySelectorAll("[data-delc]").forEach(b=>b.onclick=()=>openModal("반 활동 삭제","우리 반 전용 활동을 삭제할까요?",async()=>{await Store.remove("classes/"+S.ck+"/activities/"+b.dataset.delc);toast("삭제됨","ok");},"삭제",true));
   document.querySelectorAll("[data-editc]").forEach(b=>b.onclick=()=>editClassActivity(b.dataset.editc));
   document.querySelectorAll("[data-link]").forEach(b=>b.onclick=()=>setActivityLink(b.dataset.link));
-  document.querySelectorAll("[data-dellink]").forEach(b=>b.onclick=()=>openModal("링크 삭제","이 반 전용 링크를 삭제할까요?",async()=>{await Store.remove("classes/"+S.ck+"/links/"+b.dataset.dellink);toast("삭제됨","ok");},"삭제",true));
+  document.querySelectorAll("[data-dellink]").forEach(b=>b.onclick=()=>openModal("링크 삭제","우리 반 전용 링크를 삭제할까요?",async()=>{await Store.remove("classes/"+S.ck+"/links/"+b.dataset.dellink);toast("삭제됨","ok");},"삭제",true));
   const cla=$("#cl-add"); if(cla)cla.onclick=async()=>{const t=$("#cl-title").value.trim(),u=normalizeUrl($("#cl-url").value.trim());if(!u){toast("링크 주소를 입력하세요","err");return;}const k=Store.newKey();await Store.set("classes/"+S.ck+"/links/"+k,{title:t||u,url:u});toast("반 전용 링크가 추가됐습니다","ok");$("#cl-title").value=$("#cl-url").value="";};
   const seg=$("#ca-dom"); if(seg)seg.querySelectorAll("button").forEach(bt=>bt.onclick=()=>{seg.querySelectorAll("button").forEach(x=>x.classList.remove("on"));bt.classList.add("on");});
-  const cr=$("#ca-create"); if(cr)cr.onclick=async()=>{const name=$("#ca-name").value.trim();if(!name){toast("활동명을 입력하세요","err");return;}const dom=seg.querySelector("button.on").dataset.d;const k=Store.newKey();await Store.set("classes/"+S.ck+"/activities/"+k,{custom:true,enabled:true,domain:dom,name,content:$("#ca-content").value.trim(),org:$("#ca-org").value.trim(),period:$("#ca-period").value.trim()});toast("이 반 활동에 추가됐습니다","ok");$("#ca-name").value=$("#ca-content").value=$("#ca-org").value=$("#ca-period").value="";};
+  const cr=$("#ca-create"); if(cr)cr.onclick=async()=>{const name=$("#ca-name").value.trim();if(!name){toast("활동명을 입력하세요","err");return;}const dom=seg.querySelector("button.on").dataset.d;const k=Store.newKey();await Store.set("classes/"+S.ck+"/activities/"+k,{custom:true,enabled:true,domain:dom,name,content:$("#ca-content").value.trim(),org:$("#ca-org").value.trim(),period:$("#ca-period").value.trim()});toast("우리 반 활동에 추가됐습니다","ok");$("#ca-name").value=$("#ca-content").value=$("#ca-org").value=$("#ca-period").value="";};
 }
 function normalizeUrl(u){ u=(u||"").trim(); if(!u) return ""; if(!/^https?:\/\//i.test(u)) u="https://"+u; return u; }
 function setActivityLink(id){
@@ -1150,7 +1150,7 @@ function viewSuperActivities(){
   return '<div class="split2">'+
       '<div class="panel" style="padding:18px 20px">'+
         '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap"><span class="badge muted">학교 공통</span><strong style="font-size:15px">모든 반에 공통으로 제공되는 활동</strong><span class="eyebrow" style="margin-left:auto">'+(builtins.length+admins.length)+'개</span></div>'+
-        '<p style="font-size:12.5px;color:var(--muted);margin:0 0 14px">여기 있는 활동은 모든 반의 ‘이 반 활동 목록’에 자동으로 들어갑니다(각 반 담임이 켜고 끌 수 있음). 기본 프로그램·관리자 추가 활동 모두 수정·삭제할 수 있습니다.</p>'+
+        '<p style="font-size:12.5px;color:var(--muted);margin:0 0 14px">여기 있는 활동은 모든 반의 ‘우리 반 활동 목록’에 자동으로 들어갑니다(각 반 담임이 켜고 끌 수 있음). 기본 프로그램·관리자 추가 활동 모두 수정·삭제할 수 있습니다.</p>'+
         (admins.length?'<div class="eyebrow" style="margin-bottom:4px">관리자 추가 활동</div>'+admins.map(adItem).join(""):"")+
         (builtins.length?'<div class="eyebrow" style="margin:'+(admins.length?"14px":"0")+' 0 4px">기본 프로그램 활동</div>'+builtins.map(biItem).join(""):"")+
         (removed.length?'<div class="eyebrow" style="margin:14px 0 4px">삭제된 기본 활동 ('+removed.length+')</div>'+removed.map(rmItem).join(""):"")+
