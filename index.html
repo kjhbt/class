@@ -154,6 +154,8 @@ a{color:var(--auto)}
 .pick-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 @media(max-width:640px){.pick-grid{grid-template-columns:1fr}}
 .pick-card{border:1px solid var(--line);border-radius:var(--r-sm);padding:12px 13px;display:flex;flex-direction:column;gap:6px;text-align:left;transition:.14s;background:var(--surface-2)}
+.pick-card.added{opacity:.55;background:var(--surface);cursor:not-allowed}
+.pick-card.added .pt{color:var(--muted)}
 .pick-card:hover{border-color:var(--auto);background:#fff;transform:translateY(-2px);box-shadow:var(--shadow)}
 .pick-card .pt{font-weight:600;font-size:14px;display:flex;align-items:center;gap:7px;justify-content:space-between}
 .pick-card .pc{font-size:12px;color:var(--muted);line-height:1.5}
@@ -533,7 +535,7 @@ function renderTopbar(){
   else if(S.role==="super"){whoChip='<span class="who-chip">⭐ 관리자</span>';}
   const notHome = S.view!=="home";
   $("#topbar").innerHTML=
-    '<div class="brand"><span class="mark">1</span>'+
+    '<div class="brand"><span class="mark">cjh</span>'+
     '<div><div class="ttl">창의적 체험활동 기록 및 상담 워크스페이스</div><div class="sub">'+esc(SCHOOL_GRADE)+' 창의적 체험활동</div></div></div>'+
     (notHome?'<button class="btn ghost sm" id="nav-back">← 뒤로</button><button class="btn ghost sm" id="nav-home">⌂ 처음</button>':"")+
     '<div class="spacer"></div>'+whoChip+
@@ -725,13 +727,16 @@ function viewRecord(rec){
 }
 function viewAddPicker(){
   const acts=studentPickerActivities();
-  const group=d=>acts.filter(a=> d==="자율" ? (a.domain==="자율"||a.domain==="자율/진로") : a.domain==="진로");
-  const card=a=>'<button class="pick-card" data-add="'+a.id+'"><div class="pt">'+esc(a.name)+' '+(a.custom?'<span class="badge muted">반 활동</span>':"")+'</div>'+
-    '<div class="pc">'+esc((a.content||"").slice(0,90))+((a.content||"").length>90?"…":"")+'</div><div class="pm">'+esc(a.org||"")+' · '+esc(a.period||"")+'</div></button>';
-  const sec=(t,dot,d)=>{const g=group(d);if(!g.length)return"";return '<div class="pick-sec"><h4><span class="dot '+dot+'"></span> '+t+' <span class="eyebrow" style="margin-left:4px">'+g.length+'</span></h4><div class="pick-grid">'+g.map(card).join("")+'</div></div>';};
+  const addedRefs=new Set(recordsSorted().map(r=>r.refId).filter(Boolean));
+  const group=d=>acts.filter(a=> d==="자율" ? (a.domain==="자율"||a.domain==="자율/진로") : (a.domain==="진로"||a.domain==="자율/진로")).sort((x,y)=>(x.name||"").localeCompare(y.name||"","ko"));
+  const card=(a,d)=>{const added=addedRefs.has(a.id);
+    return '<button class="pick-card'+(added?" added":"")+'" data-add="'+a.id+'" data-dom="'+d+'"'+(added?" disabled":"")+'><div class="pt">'+esc(a.name)+' '+
+      (a.domain==="자율/진로"?'<span class="badge both">자율·진로</span>':"")+(a.custom?'<span class="badge muted">반 활동</span>':"")+(added?'<span class="badge muted">추가됨</span>':"")+'</div>'+
+      '<div class="pc">'+esc((a.content||"").slice(0,90))+((a.content||"").length>90?"…":"")+'</div><div class="pm">'+esc(a.org||"")+' · '+esc(a.period||"")+'</div></button>';};
+  const sec=(t,dot,d)=>{const g=group(d);if(!g.length)return"";return '<div class="pick-sec"><h4><span class="dot '+dot+'"></span> '+t+' <span class="eyebrow" style="margin-left:4px">'+g.length+'</span></h4><div class="pick-grid">'+g.map(a=>card(a,d)).join("")+'</div></div>';};
   const none = acts.length===0?'<div class="empty">담임 선생님이 이 반의 활동 목록을 아직 정리하지 않았어요.</div>':"";
   return '<div class="rec-title"><span class="badge auto">ADD</span><strong style="font-size:16px">수행한 활동을 추가하세요</strong></div>'+
-    '<p style="color:var(--muted);font-size:13px;margin:6px 0 18px">'+esc(classLabel(S.ck))+'에서 담임 선생님이 열어둔 활동만 표시됩니다. 고르면 새 탭에서 세부 내용을 입력할 수 있어요.</p>'+
+    '<p style="color:var(--muted);font-size:13px;margin:6px 0 18px">'+esc(classLabel(S.ck))+'에서 담임 선생님이 열어둔 활동만 표시됩니다. 자율·진로 활동은 양쪽에 보이지만, <b>한 영역에서만</b> 선택할 수 있어요.</p>'+
     none+sec("자율 활동","auto","자율")+sec("진로 활동","career","진로")+
     '<div class="divider"></div>'+
     '<div class="pick-sec"><h4>＋ 직접 활동 만들기</h4><p class="desc">목록에 없는 활동을 직접 추가합니다.</p>'+
@@ -824,11 +829,13 @@ function bindBooks(){
   const ac=$("#add-book-career"); if(ac)ac.onclick=()=>add("career");
 }
 function bindAddPicker(){
-  document.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>{const a=studentPickerActivities().find(x=>x.id===b.dataset.add);if(a)addRecordFromActivity(a);});
+  document.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>{const a=studentPickerActivities().find(x=>x.id===b.dataset.add);if(!a)return;
+    if(recordsSorted().some(r=>r.refId===a.id)){ toast("이미 추가한 활동이에요. 하나의 활동은 한 영역에서만 선택할 수 있어요.","err"); return; }
+    addRecordFromActivity(a, b.dataset.dom);});
   const seg=$("#custom-dom"); if(seg)seg.querySelectorAll("button").forEach(bt=>bt.onclick=()=>{seg.querySelectorAll("button").forEach(x=>x.classList.remove("on"));bt.classList.add("on");});
   const cc=$("#custom-create"); if(cc)cc.onclick=async()=>{const name=$("#custom-name").value.trim();if(!name){toast("활동명을 입력하세요","err");return;}const dom=seg.querySelector("button.on").dataset.d;await createRecord({name,domain:dom,subtopic:"",motivation:"",content:"",learned:""});};
 }
-async function addRecordFromActivity(a){ await createRecord({name:a.name,domain:(a.domain==="자율/진로"?"자율":(a.domain||"자율")),subtopic:"",motivation:"",content:"",learned:"",refId:a.id}); toast("활동이 추가되었습니다","ok"); }
+async function addRecordFromActivity(a, chosenDom){ const domain=(chosenDom==="자율"||chosenDom==="진로")?chosenDom:(a.domain==="자율/진로"?"자율":(a.domain||"자율")); await createRecord({name:a.name,domain,subtopic:"",motivation:"",content:"",learned:"",refId:a.id}); toast("활동이 추가되었습니다","ok"); }
 async function createRecord(rec){ const k=Store.newKey(); const order=recordsSorted().length+1; await Store.set("classes/"+S.ck+"/students/"+S.sid+"/records/"+k,{...rec,order,createdAt:Date.now()}); S.tab=k; rerenderStudentForce(); }
 function confirmDelRecord(id){ const rec=recordsSorted().find(r=>r.id===id); openModal("활동 삭제","‘"+esc(rec?rec.name:"")+"’ 활동 기록을 삭제할까요? 되돌릴 수 없습니다.",async()=>{await Store.remove("classes/"+S.ck+"/students/"+S.sid+"/records/"+id);if(S.tab===id)S.tab="books";toast("삭제됨","ok");rerenderStudentForce();},"삭제",true); }
 function rerenderStudentForce(){ _lastStudentJSON=""; const foc=captureFocus(); $("#app").innerHTML=viewStudent(); bindStudent(); restoreFocus(foc); }
@@ -952,6 +959,8 @@ function viewClassStudents(){
     '<p style="font-size:12.5px;color:var(--muted);margin:0 0 14px">학생 비밀번호는 처음에 자동으로 무작위 생성되어 배부됩니다. 칸을 직접 고쳐 바꾸거나 🎲로 새로 생성할 수 있어요. 학생이 새로 입력·수정하면 카드가 파란색(변동)으로 바뀌고, ‘열기’로 확인하면 다시 초록/빨강으로 돌아갑니다.</p>'+
     '<div class="a-grid">'+cards+'</div></div>';
 }
+const domOrder=d=>d==="진로"?2:(d==="자율/진로"?1:0);
+const byDomainThenName=(x,y)=>{const dd=domOrder(x.domain)-domOrder(y.domain); return dd!==0?dd:(x.name||"").localeCompare(y.name||"","ko");};
 function viewClassActivities(){
   const stored=S.classActs||{};
   const defState=id=>{const s=stored[id];return !s||s.enabled!==false;};
@@ -960,13 +969,13 @@ function viewClassActivities(){
     '<span class="badge '+domainClass(a.domain)+'">'+esc(a.domain)+'</span>'+
     '<div class="grow"><div class="an">'+esc(a.name)+(hasL?' <span class="badge auto" title="'+esc(st.link)+'">🔗</span>':'')+'</div><div class="ad">'+esc(a.content)+'</div></div>'+
     '<button class="btn ghost sm" data-link="'+a.id+'">🔗 링크</button></div>';};
-  const customs=Object.entries(stored).filter(([id,s])=>s&&s.custom).map(([id,s])=>({id,...s}));
+  const customs=Object.entries(stored).filter(([id,s])=>s&&s.custom).map(([id,s])=>({id,...s})).sort(byDomainThenName);
   const cusItem=a=>{const on=a.enabled!==false; const hasL=!!a.link; return '<div class="cur-item '+(on?"":"off")+'">'+
     '<button class="toggle '+(on?"on":"")+'" data-togc="'+a.id+'"></button>'+
     '<span class="badge '+domainClass(a.domain)+'">'+esc(a.domain)+'</span>'+
     '<div class="grow"><div class="an">'+esc(a.name)+' <span class="badge muted">반 활동</span>'+(hasL?' <span class="badge auto" title="'+esc(a.link)+'">🔗</span>':'')+'</div><div class="ad">'+esc(a.content||"")+'</div></div>'+
     '<button class="btn ghost sm" data-link="'+a.id+'">🔗</button><button class="btn sm" data-editc="'+a.id+'">수정</button><button class="btn danger sm" data-delc="'+a.id+'">삭제</button></div>';};
-  const defList=defaultsForClass(S.ck);
+  const defList=defaultsForClass(S.ck).slice().sort(byDomainThenName);
   const clsLinks=Object.entries(S.classLinks||{}).map(([id,l])=>({id,...l}));
   const clsLinkList=clsLinks.length? clsLinks.map(l=>'<div class="cur-item"><div class="grow"><div class="an">🔗 '+esc(l.title||l.url)+'</div><div class="ad" style="word-break:break-all">'+esc(l.url||"")+'</div></div><button class="btn danger sm" data-dellink="'+l.id+'">삭제</button></div>').join("") : '';
   const onCount=defList.filter(a=>defState(a.id)).length+customs.filter(a=>a.enabled!==false).length;
@@ -982,7 +991,7 @@ function viewClassActivities(){
     '<div class="panel" style="padding:18px 20px">'+
       '<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"><span class="badge auto">ADD</span><strong style="font-size:15px">반 전용 활동 추가</strong></div>'+
       '<div class="field"><label class="eyebrow" style="display:block;margin-bottom:6px">영역</label>'+
-        '<div class="seg" id="ca-dom"><button class="on" data-d="자율">자율</button><button data-d="진로" class="career">진로</button></div></div>'+
+        '<div class="seg" id="ca-dom"><button class="on" data-d="자율">자율</button><button data-d="진로" class="career">진로</button><button data-d="자율/진로">자율·진로</button></div></div>'+
       '<div class="field"><label class="eyebrow" style="display:block;margin:10px 0 6px">활동명</label><input class="inp" id="ca-name" placeholder="활동명"></div>'+
       '<div class="field"><label class="eyebrow" style="display:block;margin:10px 0 6px">활동 내용</label><textarea class="ta" id="ca-content" placeholder="활동 설명"></textarea></div>'+
       '<div class="grid2"><div class="field"><label class="eyebrow" style="display:block;margin:10px 0 6px">주관</label><input class="inp" id="ca-org" placeholder="예) 학급"></div>'+
@@ -1032,7 +1041,7 @@ function setActivityLink(id){
 function editClassActivity(id){
   const a=(S.classActs||{})[id]; if(!a)return;
   const body='<div class="field"><label class="eyebrow" style="display:block;margin-bottom:6px">영역</label>'+
-    '<div class="seg" id="ec-dom"><button data-d="자율" class="'+(a.domain!=="진로"?"on":"")+'">자율</button><button data-d="진로" class="career '+(a.domain==="진로"?"on":"")+'">진로</button></div></div>'+
+    '<div class="seg" id="ec-dom"><button data-d="자율" class="'+(a.domain==="자율"?"on":"")+'">자율</button><button data-d="진로" class="career '+(a.domain==="진로"?"on":"")+'">진로</button><button data-d="자율/진로" class="'+(a.domain==="자율/진로"?"on":"")+'">자율·진로</button></div></div>'+
     '<div class="field"><label class="eyebrow" style="display:block;margin:10px 0 6px">활동명</label><input class="inp" id="ec-name" value="'+esc(a.name||"")+'"></div>'+
     '<div class="field"><label class="eyebrow" style="display:block;margin:10px 0 6px">활동 설명</label><textarea class="ta" id="ec-content">'+esc(a.content||"")+'</textarea></div>';
   const ov=openModal("반 전용 활동 수정",body,async()=>{
@@ -1130,7 +1139,7 @@ function viewSuperActivities(){
   const ov=S.defOverrides||{};
   const builtins=DEFAULT_ACTIVITIES.filter(a=>!(ov[a.id]&&ov[a.id].removed)).map(a=> ov[a.id] ? {...a,...ov[a.id]} : a);
   const removed=DEFAULT_ACTIVITIES.filter(a=>ov[a.id]&&ov[a.id].removed).map(a=> ({...a,...ov[a.id]}));
-  const admins=Object.entries(S.schoolActs||{}).map(([id,a])=>({id,...a}));
+  const admins=Object.entries(S.schoolActs||{}).map(([id,a])=>({id,...a})).sort(byDomainThenName);
   const biItem=a=>{const edited=ov[a.id]&&(ov[a.id].name||ov[a.id].content||ov[a.id].domain);return '<div class="cur-item"><span class="badge '+domainClass(a.domain)+'">'+esc(a.domain)+'</span>'+
     '<div class="grow"><div class="an">'+esc(a.name)+' <span class="badge muted">기본'+(edited?" · 수정됨":"")+'</span></div><div class="ad">'+esc(a.content||"")+'</div></div>'+
     '<button class="btn sm" data-editd="'+a.id+'">수정</button><button class="btn danger sm" data-deld="'+a.id+'">삭제</button></div>';};
@@ -1150,7 +1159,7 @@ function viewSuperActivities(){
       '<div class="panel" style="padding:18px 20px">'+
         '<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"><span class="badge auto">ADD</span><strong style="font-size:15px">학교 공통 활동 추가</strong></div>'+
         '<div class="field"><label class="eyebrow" style="display:block;margin-bottom:6px">영역</label>'+
-          '<div class="seg" id="sa-dom"><button class="on" data-d="자율">자율</button><button data-d="진로" class="career">진로</button></div></div>'+
+          '<div class="seg" id="sa-dom"><button class="on" data-d="자율">자율</button><button data-d="진로" class="career">진로</button><button data-d="자율/진로">자율·진로</button></div></div>'+
         '<div class="field"><label class="eyebrow" style="display:block;margin:10px 0 6px">활동명</label><input class="inp" id="sa-name" placeholder="활동명"></div>'+
         '<div class="field"><label class="eyebrow" style="display:block;margin:10px 0 6px">활동 설명(선택)</label><textarea class="ta" id="sa-content" placeholder="활동 설명"></textarea></div>'+
         '<div class="grid2"><div class="field"><label class="eyebrow" style="display:block;margin:10px 0 6px">주관</label><input class="inp" id="sa-org" placeholder="예) 과학관"></div>'+
@@ -1196,7 +1205,7 @@ function bindSuper(){
 function editDefaultActivity(id){
   const base=DEF_BY_ID[id]; if(!base)return; const cur={...base,...((S.defOverrides||{})[id]||{})};
   const body='<div class="field"><label class="eyebrow" style="display:block;margin-bottom:6px">영역</label>'+
-    '<div class="seg" id="ed-dom"><button data-d="자율" class="'+(cur.domain!=="진로"?"on":"")+'">자율</button><button data-d="진로" class="career '+(cur.domain==="진로"?"on":"")+'">진로</button></div></div>'+
+    '<div class="seg" id="ed-dom"><button data-d="자율" class="'+(cur.domain==="자율"?"on":"")+'">자율</button><button data-d="진로" class="career '+(cur.domain==="진로"?"on":"")+'">진로</button><button data-d="자율/진로" class="'+(cur.domain==="자율/진로"?"on":"")+'">자율·진로</button></div></div>'+
     '<div class="field"><label class="eyebrow" style="display:block;margin:10px 0 6px">활동명</label><input class="inp" id="ed-name" value="'+esc(cur.name||"")+'"></div>'+
     '<div class="field"><label class="eyebrow" style="display:block;margin:10px 0 6px">활동 설명</label><textarea class="ta" id="ed-content">'+esc(cur.content||"")+'</textarea></div>'+
     '<p style="font-size:11.5px;color:var(--faint);margin:8px 0 0">기본 활동을 수정하면 모든 반에 반영됩니다.</p>';
@@ -1209,7 +1218,7 @@ function editDefaultActivity(id){
 function editSchoolActivity(id){
   const a=(S.schoolActs||{})[id]; if(!a)return;
   const body='<div class="field"><label class="eyebrow" style="display:block;margin-bottom:6px">영역</label>'+
-    '<div class="seg" id="es-dom"><button data-d="자율" class="'+(a.domain!=="진로"?"on":"")+'">자율</button><button data-d="진로" class="career '+(a.domain==="진로"?"on":"")+'">진로</button></div></div>'+
+    '<div class="seg" id="es-dom"><button data-d="자율" class="'+(a.domain==="자율"?"on":"")+'">자율</button><button data-d="진로" class="career '+(a.domain==="진로"?"on":"")+'">진로</button><button data-d="자율/진로" class="'+(a.domain==="자율/진로"?"on":"")+'">자율·진로</button></div></div>'+
     '<div class="field"><label class="eyebrow" style="display:block;margin:10px 0 6px">활동명</label><input class="inp" id="es-name" value="'+esc(a.name||"")+'"></div>'+
     '<div class="field"><label class="eyebrow" style="display:block;margin:10px 0 6px">활동 설명</label><textarea class="ta" id="es-content">'+esc(a.content||"")+'</textarea></div>';
   const ov=openModal("공통 활동 수정",body,async()=>{ const name=ov.querySelector("#es-name").value.trim(); if(!name){toast("활동명을 입력하세요","err");return false;}
