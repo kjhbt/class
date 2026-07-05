@@ -755,7 +755,7 @@ function viewCounsel(){
   const lb=(icon,t,u)=>'<a class="link-btn" href="'+esc(u)+'" target="_blank" rel="noopener">'+icon+' '+esc(t)+' →</a>';
   const linkCard='<div class="link-card">'+
     (actLinks.length?'<div class="link-t">내 활동 링크</div>'+actLinks.map(l=>lb("🔗",l.t,l.u)).join("")+'<div class="link-t" style="margin-top:12px">활동 링크 바로가기</div>':'<div class="link-t">활동 링크 바로가기</div>')+
-    '<a class="link-btn" href="https://docs.google.com/spreadsheets/d/1wRR9EH-5jpMf3uceERObfq5o3OQ9YLai9ATtpFv293w/edit?usp=sharing" target="_blank" rel="noopener">📊 과학관 행사 링크 →</a>'
+    '<a class="link-btn" href="https://docs.google.com/spreadsheets/d/1wRR9EH-5jpMf3uceERObfq5o3OQ9YLai9ATtpFv293w/edit?usp=sharing" target="_blank" rel="noopener">📊 과학관 행사 링크 →</a>'+
     clsLinks.map(l=>lb("🔗",l.title||l.url,l.url)).join("")+
   '</div>';
   const counsel='<aside class="counsel '+(lock?"locked":"")+'">'+
