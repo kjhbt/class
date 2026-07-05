@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>3학년 창의적 체험활동 · 기록 및 상담 </title>
+<title>3학년 창의적 체험활동 기록</title>
 <link rel="stylesheet" as="style" crossorigin
   href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -163,6 +163,17 @@ a{color:var(--auto)}
 @media(max-width:640px){.custom-add{grid-template-columns:1fr}}
 .counsel-col{position:sticky;top:76px;display:flex;flex-direction:column;gap:14px}
 .link-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:14px 16px}
+.notif-slot{flex:1 1 auto;min-width:0;display:flex;align-items:center}
+.notif-empty{font-size:12px;color:var(--faint);font-family:var(--mono)}
+.notif-box{display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%;background:var(--auto-soft);border:1px solid var(--auto);border-radius:12px;padding:7px 12px}
+.notif-ic{font-size:15px}
+.notif-t{font-weight:700;font-size:13px;color:var(--auto-ink);white-space:nowrap}
+.notif-names{display:flex;gap:6px;flex-wrap:wrap;flex:1 1 auto;min-width:0}
+.notif-name{background:#fff;border:1px solid var(--auto);color:var(--auto-ink);border-radius:20px;padding:3px 11px;font-size:12.5px;font-weight:600;cursor:pointer}
+.notif-name:hover{background:var(--auto);color:#fff}
+.notif-more{align-self:center;font-size:12px;color:var(--muted)}
+.notif-ack{margin-left:auto;white-space:nowrap}
+@media(max-width:680px){ .notif-slot{order:5;flex:1 1 100%} .notif-box{margin-top:8px} }
 .counsel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
 .counsel .ch{padding:14px 17px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#fff,var(--surface-2));display:flex;align-items:center;gap:9px}
 .counsel .ch .ci{width:26px;height:26px;border-radius:7px;background:var(--career);color:#fff;display:grid;place-items:center;font-size:13px}
@@ -197,6 +208,15 @@ a{color:var(--auto)}
 .a-stu .bar{height:100%;background:var(--auto)}
 .a-stu .pw{display:flex;align-items:center;gap:7px;border-top:1px dashed var(--line);padding-top:9px}
 .a-stu .pw label{font-family:var(--mono);font-size:10.5px;color:var(--faint);white-space:nowrap}
+.a-stu.st-green{border-left:4px solid var(--auto)}
+.a-stu.st-red{border-left:4px solid #d9534f;background:#fdf6f6}
+.a-stu.st-blue{border-left:4px solid #3b5bdb;background:#f4f7ff;box-shadow:0 0 0 1px #c7d2fb}
+.a-stu .chgdot{font-family:var(--mono);font-size:10.5px;font-weight:700;color:#3b5bdb;background:#e7ecfe;border-radius:20px;padding:2px 8px;margin-left:6px}
+.lgd{display:inline-flex;align-items:center;gap:5px}
+.lgdbox{width:12px;height:12px;border-radius:3px;border:1px solid var(--line)}
+.lgdbox.st-green{border-left:4px solid var(--auto)}
+.lgdbox.st-red{border-left:4px solid #d9534f;background:#fdf6f6}
+.lgdbox.st-blue{border-left:4px solid #3b5bdb;background:#f4f7ff}
 .a-stu .pw input{flex:1;font-family:var(--mono);font-size:12.5px;padding:6px 9px;border:1px solid var(--line-2);border-radius:6px;background:#fff}
 .class-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
 .class-card{border:1px solid var(--line);border-radius:var(--r);padding:18px;background:var(--surface);text-align:left;transition:.16s}
@@ -367,6 +387,7 @@ body{overflow-x:hidden}
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 /* ============================================================================
    설정 (CONFIG) — 배포 전 이 부분만 수정
@@ -407,27 +428,7 @@ const DEFAULT_ROSTERS = {
 };
 const CLASS_KEYS = Object.keys(DEFAULT_ROSTERS);
 const defaultLabel = ck => SCHOOL_GRADE + " " + ck.slice(1) + "반";
-const DEFAULT_ACTIVITIES = [
-  {id:"d01",domain:"자율",name:"학급 1인 1역할(학급 운영 활동)",org:"학급",period:"상시",content:"자신의 역량을 바탕으로 학급에 기여할 방법을 실천한다. 예) 학급 실장·부실장, 프로그램 운영 담당 등"},
-  {id:"d02",domain:"자율",name:"이론 지식 확장 독서",org:"학급",period:"상시",content:"교과에서 학습한 지식을 확장하여 과학 지식에 대한 이해를 목적으로 책을 선정하고 독서를 통해 해결한다."},
-  {id:"d03",domain:"자율",name:"최신 시사(통계자료) 분석",org:"학급",period:"상시",content:"자신의 진로(관심사) 분야 최신 과학·사회 이슈 또는 통계자료를 분석·공유하여 현 사회를 이해한다."},
-  {id:"d04",domain:"자율",name:"과학자의 삶 읽기",org:"학급",period:"7월",content:"노벨상 수상 과학자를 선택해 시대적 배경과 연구 업적을 조사하고, 그 연구가 사회에 미친 영향을 분석한다."},
-  {id:"d05",domain:"자율",name:"인공지능(AI) 리터러시",org:"학급",period:"7월",content:"AI 활용에 필요한 핵심 역량(데이터 수집 등)을 파악하고 그 역량을 함양하는 과정을 진로와 연계해 수행한다."},
-  {id:"d06",domain:"자율",name:"지역 사회 연계 플로깅",org:"3학년",period:"4-6월",content:"학교 및 인근 근린공원 환경 정화활동 실시 → 후속 활동 연계."},
-  {id:"d07",domain:"자율",name:"육각형 독서 마라톤",org:"3학년",period:"3-6월",content:"평소 읽지 않은 분야를 독서하고 서평을 작성·공유하며 균형 잡힌 시각과 자기주도적 독서 습관을 기른다."},
-  {id:"d08",domain:"자율",name:"앎을 기반으로 삶을 배로 나누는 프로젝트(자율)",org:"3학년",period:"3-6월",content:"학교·지역사회 문제 해결 프로젝트 → 여러 교과를 융합한 지식 연계 산출물 제작·공유."},
-  {id:"d09",domain:"자율",name:"인문학 아고라",org:"국어과",period:"6-7월",content:"지정 도서 탐독 후 대주제와 연계해 자신만의 탐구 주제를 설정하고 보고서를 작성한다."},
-  {id:"d10",domain:"자율",name:"교내 과학의 달 행사",org:"과학관",period:"3-4월",content:"최신 과학기술 이슈 정리 및 진로 연계 미래 시나리오 작성 → 인포그래픽 제출."},
-  {id:"d11",domain:"자율/진로",name:"자율주행 AI실",org:"3학년",period:"7/4",content:"자율주행의 기본 원리 및 모델링."},
-  {id:"d12",domain:"자율/진로",name:"양자센싱 메이커(충북대)",org:"3학년",period:"7/11",content:"양자 센싱 & ODMR 이론 입문 : 양자 스핀, 바이오이미징 QuantumBox 광학계 조립."},
-  {id:"d13",domain:"진로",name:"과학 이론(개념) 탐구",org:"학급",period:"상시",content:"교과 학습·책 내용을 토대로 궁금했던 과학 개념·이론을 선정해 학문적으로 탐구하고 관련 기술을 소개한다."},
-  {id:"d14",domain:"진로",name:"진로 연계 독서 활동",org:"학급",period:"상시",content:"희망 진로와 관련된 책을 자유롭게 선정해 탐독 후 과학 서평을 작성한다."},
-  {id:"d15",domain:"진로",name:"진로 연계 자율 탐구",org:"학급",period:"상시",content:"희망 진로와 관련해 질문을 생성하고 심화 이론 탐구 활동을 수행한다."},
-  {id:"d16",domain:"진로",name:"앎을 기반으로 삶을 배로 나누는 프로젝트(진로)",org:"3학년",period:"3-7월",content:"학교·지역사회 문제 해결 프로젝트 → 여러 교과를 융합한 지식 연계 산출물 제작·공유."},
-  {id:"d17",domain:"진로",name:"효학반 진로 멘토링",org:"과학관",period:"4-7월초",content:"이공계 진로와 관련해 활동을 주도적으로 설계하고 나눔을 실천한다. → 이론 전달 + 확인 실험 + 확장 탐구."},
-  {id:"d18",domain:"진로",name:"과학 디딤돌(전기전자 기초)",org:"과학관",period:"4월초",content:"오실로스코프·함수발생기 활용 + 브레드보드 기초 회로 실습."},
-  {id:"d19",domain:"진로",name:"창의 융합 캠프",org:"과학관",period:"5월",content:"과학기술 기반 창의·창업 프로젝트 / 교통 시뮬레이션 / 미세먼지 궤적 시뮬레이션 / 아두이노 문제해결."}
-];
+const DEFAULT_ACTIVITIES = [];  /* 내장 기본 활동 제거 — 학교 공통 활동은 관리자 엑셀 업로드로 관리 */
 const DEF_BY_ID = Object.fromEntries(DEFAULT_ACTIVITIES.map(a=>[a.id,a]));
 const Store = (()=>{
   let mode="local", db=null, auth=null, readyP=Promise.resolve(); const local={}; const subs={}; const LS="cea3_db";
@@ -504,9 +505,8 @@ let _lastClassJSON="";
 function classSig(){ // 학생 전체 텍스트 대신 카운트/비번/활동 키만 → 다른 학생이 타이핑해도 개요 재렌더 안 함
   const all=S.allStudents||{}, ros=S.roster||{};
   let s="";
-  for(const r of rosterArr(S.ck)){ const st=all[r.sid]||{}; const rc=st.records?Object.keys(st.records).length:0;
-    const c=st.counseling||{}; let cs=0; if(c.autoDesign&&c.autoDesign.trim())cs++; if(c.careerDesign&&c.careerDesign.trim())cs++; if(c.summary&&c.summary.trim())cs++;
-    const pw=(ros[r.sid]&&ros[r.sid].pw)||""; s+=r.sid+":"+rc+":"+cs+":"+pw+"|"; }
+  for(const r of rosterArr(S.ck)){ const st=all[r.sid]||{};
+    const pw=(ros[r.sid]&&ros[r.sid].pw)||""; s+=r.sid+":"+stuContentSig(st)+":"+pw+"|"; }
   const acts=JSON.stringify([S.classActs,S.schoolActs,S.defOverrides,S.classLinks]);
   return S.adminTab+"#"+s+"#"+acts+"#"+(((S.classCfg||{})[S.ck]||{}).label||"");
 }
@@ -585,7 +585,7 @@ function viewHome(){
     '<p>3학년 1학기 창체활동을 스스로 정리하는 워크스페이스입니다.</p></div>'+
     '<div class="gate gate2">'+
       '<button class="opt stu" id="go-stu"><span class="edge"></span><div class="k">FOR STUDENTS</div>'+
-        '<h3>학생 로그인</h3><p>반과 이름을 고르고 비밀번호로 입장. 내 활동을 탭으로 정리하고, 상담 내용은 열람할 수 있어요.</p>'+
+        '<h3>학생 로그인</h3><p>반과 이름을 고르고 비밀번호로 입장. 내 활동을 정리하고, 상담 내용은 열람할 수 있어요.</p>'+
         '<span class="btn primary sm">학생으로 시작 →</span></button>'+
       '<button class="opt tea" id="go-tea"><span class="edge"></span><div class="k">FOR TEACHER</div>'+
         '<h3>교사 로그인</h3><p>담당 학급의 학생 기록·상담을 관리하고, 학생 비밀번호와 반별 활동 목록을 정리합니다.</p>'+
@@ -768,7 +768,7 @@ function viewCounsel(){
     '<div class="ftr"><button class="btn primary sm" id="print-full" style="flex:1">🖨 활동+상담</button><button class="btn sm" id="print-counsel" style="flex:1">🖨 상담만</button></div>'+
     '<div class="counsel-note">'+(lock?"상담 내용은 담임 선생님만 작성할 수 있고, 학생은 열람만 가능합니다. (모든 활동 탭에서 동일하게 표시)":"이 패널은 모든 활동 탭에서 동일하게 연동됩니다.")+'</div>'+
   '</aside>';
-  return '<div class="counsel-col">'+linkCard+counsel+'</div>';
+  return '<div class="counsel-col">'+(S.role==="student"?"":linkCard)+counsel+'</div>';
 }
 let _lastStudentJSON="";
 function studentSnap(){ // 가벼운 시그니처: 전체 텍스트를 직렬화하지 않고 구조 + 각 필드 길이만
@@ -875,7 +875,7 @@ function viewTeaClasses(){
 function bindTeaClasses(){ document.querySelectorAll(".class-card").forEach(c=>c.onclick=()=>enterClass(c.dataset.ck)); }
 function enterClass(ck){
   clearSubs(); _pwEnsured=null; _lastClassJSON=""; Object.assign(S,{view:"class",ck,adminTab:"students",sid:null,student:null});
-  S.subs.push(Store.subscribe("classes/"+ck+"/students",d=>{S.allStudents=d||{}; rerenderClass();}));
+  S.subs.push(Store.subscribe("classes/"+ck+"/students",d=>{S.allStudents=d||{}; seedSeenIfEmpty(ck); rerenderClass(); updateChangeNotif();}));
   S.subs.push(Store.subscribe("classes/"+ck+"/roster",d=>{S.roster=d||{}; ensurePasswords(ck); rerenderClass();}));
   S.subs.push(Store.subscribe("classes/"+ck+"/activities",d=>{S.classActs=d||{}; rerenderClass();}));
   S.subs.push(Store.subscribe("config/schoolActivities",d=>{S.schoolActs=d||{}; rerenderClass();}));
@@ -889,6 +889,7 @@ function viewClass(){
   return '<div class="fadein">'+
     '<div class="ws-head"><div class="who"><div class="avatar" style="background:var(--career)">'+(S.role==="super"?"⭐":esc((S.teacher&&S.teacher.name||"교").slice(0,1)))+'</div>'+
       '<div><div class="nm">'+esc(classLabel(S.ck))+'</div><div class="meta">'+(S.role==="super"?"관리자":esc(S.teacher?S.teacher.name+" 선생님":""))+' · 학급 관리</div></div></div>'+
+      '<div id="change-notif" class="notif-slot"></div>'+
       '<div class="spacer"></div>'+
       (multi?'<button class="btn ghost sm" id="cls-switch">↔ 다른 담당 반</button>':"")+
       (S.role==="super"?'<button class="btn ghost sm" id="cls-super">← 관리자 홈</button>':"")+
@@ -900,13 +901,43 @@ function viewClass(){
     (S.adminTab==="students"?viewClassStudents():viewClassActivities())+
   '</div>';
 }
+function stuContentSig(st){
+  st=st||{}; const r=st.records||{}; let s="";
+  Object.keys(r).sort().forEach(id=>{const x=r[id]||{}; s+=id+":"+(x.name||"").length+","+(x.subtopic||"").length+","+(x.motivation||"").length+","+(x.content||"").length+","+(x.learned||"").length+","+(x.domain||"")+"|";});
+  const c=st.counseling||{}; s+="#"+(c.autoDesign||"").length+","+(c.careerDesign||"").length+","+(c.summary||"").length;
+  const b=st.books||{}; s+="#"; ["auto","career"].forEach(d=>{const o=b[d]||{}; Object.keys(o).sort().forEach(k=>{s+=d+k+":"+((o[k].title||"").length)+","+((o[k].activity||"").length)+";";});});
+  s+="#"+(st.career||"").length;
+  return s;
+}
+function seenKey(ck){ return "cea3_seen_"+((S.teacher&&S.teacher._id)||S.role||"t")+"_"+ck; }
+function loadSeen(ck){ try{return JSON.parse(localStorage.getItem(seenKey(ck))||"{}");}catch(e){return {};} }
+function saveSeen(ck,m){ try{localStorage.setItem(seenKey(ck),JSON.stringify(m));}catch(e){} }
+function markSeen(ck,sid,sig){ const m=loadSeen(ck); m[sid]=sig; saveSeen(ck,m); }
+function seedSeenIfEmpty(ck){ const m=loadSeen(ck); if(Object.keys(m).length) return; const all=S.allStudents||{}; rosterArr(ck).forEach(r=>{ m[r.sid]=stuContentSig(all[r.sid]); }); saveSeen(ck,m); }
+function computeChanges(ck){ const all=S.allStudents||{}; const seen=loadSeen(ck); const out=[];
+  rosterArr(ck).forEach(r=>{ const sig=stuContentSig(all[r.sid]); if((r.sid in seen) && seen[r.sid]!==sig) out.push({sid:r.sid,name:r.name}); }); return out; }
+function ackAllChanges(ck){ const all=S.allStudents||{}; const m=loadSeen(ck); rosterArr(ck).forEach(r=>{ m[r.sid]=stuContentSig(all[r.sid]); }); saveSeen(ck,m); }
+function updateChangeNotif(){
+  const el=document.getElementById("change-notif"); if(!el) return;
+  const ch=computeChanges(S.ck);
+  if(!ch.length){ el.innerHTML='<div class="notif-empty">🔔 새 변동 없음</div>'; return; }
+  const names=ch.slice(0,8).map(c=>'<button class="notif-name" data-gosid="'+c.sid+'">'+esc(c.name)+'</button>').join("");
+  el.innerHTML='<div class="notif-box"><span class="notif-ic">🔔</span><span class="notif-t">새 변동 '+ch.length+'명</span>'+
+    '<div class="notif-names">'+names+(ch.length>8?'<span class="notif-more">+'+(ch.length-8)+'</span>':'')+'</div>'+
+    '<button class="btn ghost sm notif-ack">모두 확인</button></div>';
+  el.querySelectorAll("[data-gosid]").forEach(b=>b.onclick=()=>{ const sid=b.dataset.gosid; markSeen(S.ck,sid,stuContentSig((S.allStudents||{})[sid])); enterStudent(S.ck,sid,S.role); });
+  const ack=el.querySelector(".notif-ack"); if(ack)ack.onclick=()=>{ ackAllChanges(S.ck); if(S.adminTab==="students"){$("#app").innerHTML=viewClass();bindClass();} else updateChangeNotif(); };
+}
 function viewClassStudents(){
-  const all=S.allStudents||{}; const ros=S.roster||{};
+  const all=S.allStudents||{}; const ros=S.roster||{}; const seen=loadSeen(S.ck);
   const cards=rosterArr(S.ck).map(r=>{ const st=all[r.sid]||{}; const rc=st.records?Object.keys(st.records).length:0;
     const c=st.counseling||{}; const cs=[c.autoDesign,c.careerDesign,c.summary].filter(x=>x&&x.trim()).length;
     const pct=Math.min(100,rc*20); const pw=(ros[r.sid]&&ros[r.sid].pw)||"";
-    return '<div class="a-stu">'+
+    const sig=stuContentSig(st); const changed=(r.sid in seen)&&seen[r.sid]!==sig;
+    const stcls=changed?"st-blue":(rc>0?"st-green":"st-red");
+    return '<div class="a-stu '+stcls+'">'+
       '<div class="top"><span class="no">'+String(r.no).padStart(2,"0")+'</span><span class="nm">'+esc(r.name)+'</span>'+
+        (changed?'<span class="chgdot" title="변동 있음">● 변동</span>':'')+
         '<button class="btn career sm open" data-sid="'+r.sid+'">열기 →</button></div>'+
       '<div class="bars"><span class="pill"><span class="dot auto"></span>활동 '+rc+'</span><span class="pill"><span class="dot career"></span>상담 '+cs+'/3</span></div>'+
       '<div class="barwrap"><div class="bar" style="width:'+pct+'%"></div></div>'+
@@ -917,7 +948,8 @@ function viewClassStudents(){
     '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap"><span class="badge career">OVERVIEW</span>'+
       '<strong style="font-size:15px">학생 기록·상담 관리 및 비밀번호</strong>'+
       '<button class="btn sm" id="print-roster" style="margin-left:auto">🖨 이름·비밀번호 인쇄</button></div>'+
-    '<p style="font-size:12.5px;color:var(--muted);margin:0 0 14px">학생 비밀번호는 처음에 자동으로 무작위 생성되어 배부됩니다(위 칸에서 확인). 칸을 직접 고쳐 바꾸거나 🎲로 새로 생성할 수 있고, 학생이 첫 로그인 후 스스로 바꾼 비밀번호도 여기에 그대로 표시됩니다. 인쇄해서 학생들에게 이름과 함께 나눠줄 수 있어요.</p>'+
+    '<div style="display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin:0 0 10px"><span class="lgd"><span class="lgdbox st-green"></span>활동 입력됨</span><span class="lgd"><span class="lgdbox st-red"></span>활동 없음</span><span class="lgd"><span class="lgdbox st-blue"></span>새 변동(미확인)</span></div>'+
+    '<p style="font-size:12.5px;color:var(--muted);margin:0 0 14px">학생 비밀번호는 처음에 자동으로 무작위 생성되어 배부됩니다. 칸을 직접 고쳐 바꾸거나 🎲로 새로 생성할 수 있어요. 학생이 새로 입력·수정하면 카드가 파란색(변동)으로 바뀌고, ‘열기’로 확인하면 다시 초록/빨강으로 돌아갑니다.</p>'+
     '<div class="a-grid">'+cards+'</div></div>';
 }
 function viewClassActivities(){
@@ -966,11 +998,12 @@ function viewClassActivities(){
     '</div></div>';
 }
 function bindClass(){
+  updateChangeNotif();
   document.querySelectorAll(".atab").forEach(t=>t.onclick=()=>{S.adminTab=t.dataset.at;$("#app").innerHTML=viewClass();bindClass();});
   const pr=$("#print-roster"); if(pr)pr.onclick=printRoster;
   const sw=$("#cls-switch"); if(sw)sw.onclick=()=>{clearSubs();S.view="tea-classes";render();};
   const su=$("#cls-super"); if(su)su.onclick=()=>{clearSubs();enterSuper();};
-  document.querySelectorAll(".a-stu .open").forEach(b=>b.onclick=()=>enterStudent(S.ck,b.dataset.sid,S.role));
+  document.querySelectorAll(".a-stu .open").forEach(b=>b.onclick=()=>{ markSeen(S.ck,b.dataset.sid,stuContentSig((S.allStudents||{})[b.dataset.sid])); enterStudent(S.ck,b.dataset.sid,S.role); });
   document.querySelectorAll(".pw-i").forEach(inp=>inp.oninput=()=>saveDebounced("pw-"+inp.dataset.sid,"classes/"+S.ck+"/roster/"+inp.dataset.sid,{pw:inp.value}));
   document.querySelectorAll(".pw-regen").forEach(b=>b.onclick=async()=>{const np=genPw();await Store.update("classes/"+S.ck+"/roster/"+b.dataset.sid,{pw:np});const inp=document.querySelector('.pw-i[data-sid="'+b.dataset.sid+'"]');if(inp)inp.value=np;toast("새 비밀번호: "+np,"ok");});
   document.querySelectorAll("[data-tog]").forEach(t=>t.onclick=async()=>{const id=t.dataset.tog;const s=(S.classActs||{})[id];const cur=!s||s.enabled!==false;await Store.update("classes/"+S.ck+"/activities/"+id,{ref:id,enabled:!cur});});
@@ -1009,6 +1042,50 @@ function editClassActivity(id){
     toast("수정됐습니다","ok");
   },"저장");
   ov.querySelectorAll("#ec-dom button").forEach(bt=>bt.onclick=()=>{ov.querySelectorAll("#ec-dom button").forEach(x=>x.classList.remove("on"));bt.classList.add("on");});
+}
+function downloadActivityTemplate(){
+  if(typeof XLSX==="undefined"){toast("엑셀 라이브러리 로딩 중입니다. 잠시 후 다시 시도하세요.","err");return;}
+  const rows=[["영역","활동명","활동설명","주관","시행"],
+    ["자율","학급 1인 1역할","자신의 역량을 바탕으로 학급에 기여할 방법을 실천","학급","3월"],
+    ["진로","진로 심화 탐구","희망 진로와 연계한 주제를 선정해 조사·발표","학년","5월"]];
+  const ws=XLSX.utils.aoa_to_sheet(rows); const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,"학교공통활동"); XLSX.writeFile(wb,"학교공통활동_양식.xlsx");
+}
+function uploadSchoolActivitiesExcel(){
+  if(typeof XLSX==="undefined"){toast("엑셀 라이브러리 로딩 중입니다. 잠시 후 다시 시도하세요.","err");return;}
+  const f=$("#sa-file")&&$("#sa-file").files[0]; const log=$("#sa-uplog");
+  if(!f){toast("엑셀 파일을 선택하세요","err");return;}
+  const replace=$("#sa-replace")&&$("#sa-replace").checked;
+  const rd=new FileReader();
+  rd.onload=async e=>{ try{
+    const wb=XLSX.read(e.target.result,{type:"array"});
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    const raw=XLSX.utils.sheet_to_json(ws,{defval:""});
+    const pick=(o,keys)=>{ for(const k of Object.keys(o)){ const kk=String(k).replace(/\s/g,""); if(keys.some(x=>kk.includes(x))) return o[k]; } return ""; };
+    const rows=[];
+    raw.forEach(o=>{ const name=String(pick(o,["활동명","활동","명칭","이름"])).trim(); if(!name)return;
+      const domRaw=String(pick(o,["영역","구분","자율진로"])).replace(/\s/g,""); const dom=(domRaw.includes("자율")&&domRaw.includes("진로"))?"자율/진로":(domRaw.includes("진로")?"진로":"자율");
+      rows.push({domain:dom, name, content:String(pick(o,["활동설명","설명","내용"])).trim(), org:String(pick(o,["주관","기관"])).trim(), period:String(pick(o,["시행","시기","월","일정"])).trim()});
+    });
+    if(!rows.length){ if(log)log.textContent="유효한 행을 찾지 못했습니다. 머리글(영역/활동명 등)을 확인하세요."; toast("업로드할 활동이 없습니다","err"); return; }
+    const auto=rows.filter(r=>r.domain==="자율").length, career=rows.length-auto;
+    const doUpload=async()=>{
+      if(replace){
+        const ov={}; DEFAULT_ACTIVITIES.forEach(a=>ov[a.id]={removed:true});
+        await Store.set("config/defaultOverrides",ov);
+        await Store.set("config/schoolActivities",null);
+      }
+      const add={}; rows.forEach(r=>{ add[Store.newKey()]=r; });
+      const cur=replace?{}:(S.schoolActs||{});
+      await Store.set("config/schoolActivities",{...cur,...add});
+      toast("학교 공통 활동 "+rows.length+"개 업로드 완료","ok");
+      if(log)log.textContent="완료: 자율 "+auto+" · 진로 "+career+"개 반영됨"+(replace?" (기존 목록 교체)":" (기존에 추가)");
+      $("#sa-file").value="";
+    };
+    if(replace) openModal("교체 업로드 확인","기존 학교 공통 활동을 모두 지우고 이 파일의 "+rows.length+"개(자율 "+auto+"·진로 "+career+")로 교체합니다. 진행할까요?",doUpload,"교체",true);
+    else await doUpload();
+  }catch(err){ console.error(err); if(log)log.textContent="파일을 읽지 못했습니다: "+(err&&err.message||err); toast("엑셀을 읽지 못했습니다","err"); } };
+  rd.readAsArrayBuffer(f);
 }
 function enterSuper(){ clearSubs(); Object.assign(S,{view:"super",role:"super",ck:null,sid:null,teacher:null,superTab:"teachers"}); saveSession();
   S.subs.push(Store.subscribe("config/teachers",d=>{S.teachers=d||{}; if(S.view==="super"){$("#app").innerHTML=viewSuper();bindSuper();}}));
@@ -1066,8 +1143,9 @@ function viewSuperActivities(){
         '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap"><span class="badge muted">학교 공통</span><strong style="font-size:15px">모든 반에 공통으로 제공되는 활동</strong><span class="eyebrow" style="margin-left:auto">'+(builtins.length+admins.length)+'개</span></div>'+
         '<p style="font-size:12.5px;color:var(--muted);margin:0 0 14px">여기 있는 활동은 모든 반의 ‘이 반 활동 목록’에 자동으로 들어갑니다(각 반 담임이 켜고 끌 수 있음). 기본 프로그램·관리자 추가 활동 모두 수정·삭제할 수 있습니다.</p>'+
         (admins.length?'<div class="eyebrow" style="margin-bottom:4px">관리자 추가 활동</div>'+admins.map(adItem).join(""):"")+
-        '<div class="eyebrow" style="margin:'+(admins.length?"14px":"0")+' 0 4px">기본 프로그램 활동</div>'+builtins.map(biItem).join("")+
+        (builtins.length?'<div class="eyebrow" style="margin:'+(admins.length?"14px":"0")+' 0 4px">기본 프로그램 활동</div>'+builtins.map(biItem).join(""):"")+
         (removed.length?'<div class="eyebrow" style="margin:14px 0 4px">삭제된 기본 활동 ('+removed.length+')</div>'+removed.map(rmItem).join(""):"")+
+        ((admins.length+builtins.length)===0?'<div class="empty">아직 학교 공통 활동이 없습니다. 아래에서 직접 추가하거나 엑셀로 업로드하세요.</div>':"")+
       '</div>'+
       '<div class="panel" style="padding:18px 20px">'+
         '<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"><span class="badge auto">ADD</span><strong style="font-size:15px">학교 공통 활동 추가</strong></div>'+
@@ -1078,6 +1156,15 @@ function viewSuperActivities(){
         '<div class="grid2"><div class="field"><label class="eyebrow" style="display:block;margin:10px 0 6px">주관</label><input class="inp" id="sa-org" placeholder="예) 과학관"></div>'+
           '<div class="field"><label class="eyebrow" style="display:block;margin:10px 0 6px">시행</label><input class="inp" id="sa-period" placeholder="예) 5월"></div></div>'+
         '<button class="btn primary" id="sa-create" style="width:100%;margin-top:14px;justify-content:center">모든 반에 공통 추가</button>'+
+        '<div class="divider"></div>'+
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span class="badge auto">EXCEL</span><strong style="font-size:15px">엑셀로 일괄 업로드</strong></div>'+
+        '<p style="font-size:12px;color:var(--muted);margin:0 0 6px">엑셀(.xlsx/.csv) <b>첫 시트</b>에 아래 열 머리글을 두고 행을 채우세요. <b>영역</b> 열이 “자율/진로”면 자동으로 구분됩니다.</p>'+
+        '<div style="font-family:var(--mono);font-size:11px;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:0 0 10px;overflow:auto">영역 | 활동명 | 활동설명 | 주관 | 시행</div>'+
+        '<button class="btn ghost sm" id="sa-tpl" style="margin-bottom:10px">⬇ 양식 파일 내려받기</button>'+
+        '<input type="file" id="sa-file" accept=".xlsx,.xls,.csv" style="display:block;width:100%;font-size:12px;margin-bottom:8px">'+
+        '<label class="lgd" style="font-size:12px;color:var(--muted);margin-bottom:10px"><input type="checkbox" id="sa-replace" style="margin-right:6px">기존 학교 공통 활동을 모두 지우고 이 파일로 교체</label>'+
+        '<button class="btn primary" id="sa-upload" style="width:100%;justify-content:center">엑셀 업로드</button>'+
+        '<div id="sa-uplog" style="font-size:11.5px;color:var(--muted);margin-top:8px"></div>'+
       '</div></div>';
 }
 function bindSuper(){
@@ -1103,6 +1190,8 @@ function bindSuper(){
   document.querySelectorAll("[data-editd]").forEach(b=>b.onclick=()=>editDefaultActivity(b.dataset.editd));
   document.querySelectorAll("[data-deld]").forEach(b=>b.onclick=()=>openModal("기본 활동 삭제","이 기본 활동을 모든 반에서 숨길까요? 나중에 ‘복원’으로 되돌릴 수 있습니다.",async()=>{await Store.update("config/defaultOverrides/"+b.dataset.deld,{removed:true});toast("삭제됨 (복원 가능)","ok");},"삭제",true));
   document.querySelectorAll("[data-restored]").forEach(b=>b.onclick=async()=>{await Store.update("config/defaultOverrides/"+b.dataset.restored,{removed:null});toast("복원됨","ok");});
+  const tpl=$("#sa-tpl"); if(tpl)tpl.onclick=downloadActivityTemplate;
+  const up=$("#sa-upload"); if(up)up.onclick=uploadSchoolActivitiesExcel;
 }
 function editDefaultActivity(id){
   const base=DEF_BY_ID[id]; if(!base)return; const cur={...base,...((S.defOverrides||{})[id]||{})};
