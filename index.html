@@ -535,7 +535,7 @@ function renderTopbar(){
   else if(S.role==="super"){whoChip='<span class="who-chip">⭐ 관리자</span>';}
   const notHome = S.view!=="home";
   $("#topbar").innerHTML=
-    '<div class="brand"><span class="mark">cjh</span>'+
+    '<div class="brand"><span class="mark">1</span>'+
     '<div><div class="ttl">창의적 체험활동 기록 및 상담 워크스페이스</div><div class="sub">'+esc(SCHOOL_GRADE)+' 창의적 체험활동</div></div></div>'+
     (notHome?'<button class="btn ghost sm" id="nav-back">← 뒤로</button><button class="btn ghost sm" id="nav-home">⌂ 처음</button>':"")+
     '<div class="spacer"></div>'+whoChip+
@@ -975,18 +975,20 @@ function viewClassActivities(){
     '<span class="badge '+domainClass(a.domain)+'">'+esc(a.domain)+'</span>'+
     '<div class="grow"><div class="an">'+esc(a.name)+' <span class="badge muted">반 활동</span>'+(hasL?' <span class="badge auto" title="'+esc(a.link)+'">🔗</span>':'')+'</div><div class="ad">'+esc(a.content||"")+'</div></div>'+
     '<button class="btn ghost sm" data-link="'+a.id+'">🔗</button><button class="btn sm" data-editc="'+a.id+'">수정</button><button class="btn danger sm" data-delc="'+a.id+'">삭제</button></div>';};
-  const defList=defaultsForClass(S.ck).slice().sort(byDomainThenName);
+  const isClassOrg=a=>String(a.org||"").includes("학급");
+  const defAll=defaultsForClass(S.ck).slice();
+  const defCommon=defAll.filter(a=>!isClassOrg(a)).sort(byDomainThenName);
+  const defClassOrg=defAll.filter(a=>isClassOrg(a)).sort(byDomainThenName);
   const clsLinks=Object.entries(S.classLinks||{}).map(([id,l])=>({id,...l}));
   const clsLinkList=clsLinks.length? clsLinks.map(l=>'<div class="cur-item"><div class="grow"><div class="an">🔗 '+esc(l.title||l.url)+'</div><div class="ad" style="word-break:break-all">'+esc(l.url||"")+'</div></div><button class="btn danger sm" data-dellink="'+l.id+'">삭제</button></div>').join("") : '';
-  const onCount=defList.filter(a=>defState(a.id)).length+customs.filter(a=>a.enabled!==false).length;
+  const onCount=defAll.filter(a=>defState(a.id)).length+customs.filter(a=>a.enabled!==false).length;
   return '<div class="split2">'+
     '<div class="panel" style="padding:18px 20px">'+
       '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap"><span class="badge muted">활동 목록</span>'+
         '<strong style="font-size:15px">우리 반에서 학생이 고를 수 있는 활동</strong><span class="eyebrow" style="margin-left:auto">사용 '+onCount+'개</span></div>'+
-      '<p style="font-size:12.5px;color:var(--muted);margin:0 0 14px">토글을 끄면 우리 반 학생의 ‘활동 추가’ 목록에서 사라집니다. 학교 공통 활동은 관리자가 관리하고, 반 전용 활동은 오른쪽에서 추가·삭제할 수 있어요.</p>'+
-      '<div style="margin-bottom:4px" class="eyebrow">학교 공통 활동</div>'+
-      defList.map(defItem).join("")+
-      (customs.length?'<div style="margin:14px 0 4px" class="eyebrow">우리 반 전용 활동</div>'+customs.map(cusItem).join(""):"")+
+      '<p style="font-size:12.5px;color:var(--muted);margin:0 0 14px">토글을 끄면 우리 반 학생의 ‘활동 추가’ 목록에서 사라집니다. 학교 공통 활동은 관리자가 관리하고, 주관이 <b>학급</b>인 활동과 직접 추가한 활동은 <b>우리 반 전용 활동</b>으로 모입니다.</p>'+
+      (defCommon.length?'<div style="margin-bottom:4px" class="eyebrow">학교 공통 활동</div>'+defCommon.map(defItem).join(""):"")+
+      ((defClassOrg.length||customs.length)?'<div style="margin:'+(defCommon.length?"14px":"0")+' 0 4px" class="eyebrow">우리 반 전용 활동</div>'+defClassOrg.map(defItem).join("")+customs.map(cusItem).join(""):"")+
     '</div>'+
     '<div class="panel" style="padding:18px 20px">'+
       '<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"><span class="badge auto">ADD</span><strong style="font-size:15px">반 전용 활동 추가</strong></div>'+
