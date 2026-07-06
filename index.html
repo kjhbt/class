@@ -404,16 +404,9 @@ body{overflow-x:hidden}
    * 반 내부 접근 구분(학생/교사)은 기존의 이름+비밀번호(UI 잠금)가 담당합니다.
    ============================================================================ */
 const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyBH3HYCnkY2Xp46S53eQEP-zC6Dc-SdpBc",
-  authDomain: "class-teacher-4991c.firebaseapp.com",
-  databaseURL: "https://class-teacher-4991c-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "class-teacher-4991c",
-  storageBucket: "class-teacher-4991c.firebasestorage.app",
-  messagingSenderId: "689443163736",
-  appId: "1:689443163736:web:0c345631b7fb006445842d"
+  apiKey:"", authDomain:"", databaseURL:"", projectId:"", storageBucket:"", messagingSenderId:"", appId:""
 };
-
-const SUPER_PASSWORD = "cjdrh07000";
+const SUPER_PASSWORD = "super-2026";
 const SCHOOL_GRADE   = "3학년";
 const DEFAULT_ROSTERS = {
   c1: ["강인규","김건우","김예준","김재민","김재준","문찬빈","민현기","박민수","박정우","박종인","박희현","서승운","안종현","오승민","유세혁","유현성","이루다","이승재","이승현","이정민","이태양","이현준","이호준","이휘호","정수현","지요한","최효준","탁재우","홍상현"],
@@ -504,11 +497,15 @@ async function ensurePasswords(ck){
 }
 const isEditingPw=()=>{const a=document.activeElement;return !!(a&&a.classList&&a.classList.contains("pw-i"));};
 let _lastClassJSON="";
-function classSig(){ // 학생 전체 텍스트 대신 카운트/비번/활동 키만 → 다른 학생이 타이핑해도 개요 재렌더 안 함
+function classSig(){ // 개요는 개수만 표시 → 글자수가 아닌 카운트 기반(타이핑해도 개요 재렌더 안 함 → 깜빡임 방지)
   const all=S.allStudents||{}, ros=S.roster||{};
   let s="";
   for(const r of rosterArr(S.ck)){ const st=all[r.sid]||{};
-    const pw=(ros[r.sid]&&ros[r.sid].pw)||""; s+=r.sid+":"+stuContentSig(st)+":"+pw+"|"; }
+    const rc=st.records?Object.keys(st.records).length:0;
+    const c=st.counseling||{}; let cf=0; if(c.autoDesign&&c.autoDesign.trim())cf++; if(c.careerDesign&&c.careerDesign.trim())cf++; if(c.summary&&c.summary.trim())cf++;
+    const bk=st.books||{}; const bc=(bk.auto?Object.keys(bk.auto).length:0)+(bk.career?Object.keys(bk.career).length:0);
+    const pw=(ros[r.sid]&&ros[r.sid].pw)||"";
+    s+=r.sid+":"+rc+":"+cf+":"+bc+":"+pw+"|"; }
   const acts=JSON.stringify([S.classActs,S.schoolActs,S.defOverrides,S.classLinks]);
   return S.adminTab+"#"+s+"#"+acts+"#"+(((S.classCfg||{})[S.ck]||{}).label||"");
 }
@@ -880,7 +877,7 @@ function viewTeaClasses(){
 }
 function bindTeaClasses(){ document.querySelectorAll(".class-card").forEach(c=>c.onclick=()=>enterClass(c.dataset.ck)); }
 function enterClass(ck){
-  clearSubs(); _pwEnsured=null; _lastClassJSON=""; Object.assign(S,{view:"class",ck,adminTab:"students",sid:null,student:null});
+  clearSubs(); _pwEnsured=null; _lastClassJSON=""; _lastNotifSig="__init__"; Object.assign(S,{view:"class",ck,adminTab:"students",sid:null,student:null});
   S.subs.push(Store.subscribe("classes/"+ck+"/students",d=>{S.allStudents=d||{}; seedSeenIfEmpty(ck); rerenderClass(); updateChangeNotif();}));
   S.subs.push(Store.subscribe("classes/"+ck+"/roster",d=>{S.roster=d||{}; ensurePasswords(ck); rerenderClass();}));
   S.subs.push(Store.subscribe("classes/"+ck+"/activities",d=>{S.classActs=d||{}; rerenderClass();}));
@@ -923,9 +920,13 @@ function seedSeenIfEmpty(ck){ const m=loadSeen(ck); if(Object.keys(m).length) re
 function computeChanges(ck){ const all=S.allStudents||{}; const seen=loadSeen(ck); const out=[];
   rosterArr(ck).forEach(r=>{ const sig=stuContentSig(all[r.sid]); if((r.sid in seen) && seen[r.sid]!==sig) out.push({sid:r.sid,name:r.name}); }); return out; }
 function ackAllChanges(ck){ const all=S.allStudents||{}; const m=loadSeen(ck); rosterArr(ck).forEach(r=>{ m[r.sid]=stuContentSig(all[r.sid]); }); saveSeen(ck,m); }
+let _lastNotifSig="__init__";
 function updateChangeNotif(){
   const el=document.getElementById("change-notif"); if(!el) return;
   const ch=computeChanges(S.ck);
+  const sig=ch.map(c=>c.sid).join(",");
+  if(sig===_lastNotifSig && el.innerHTML) return;   // 변동 학생 집합이 그대로면 배너 다시 안 그림
+  _lastNotifSig=sig;
   if(!ch.length){ el.innerHTML='<div class="notif-empty">🔔 새 변동 없음</div>'; return; }
   const names=ch.slice(0,8).map(c=>'<button class="notif-name" data-gosid="'+c.sid+'">'+esc(c.name)+'</button>').join("");
   el.innerHTML='<div class="notif-box"><span class="notif-ic">🔔</span><span class="notif-t">새 변동 '+ch.length+'명</span>'+
