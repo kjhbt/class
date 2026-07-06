@@ -404,9 +404,16 @@ body{overflow-x:hidden}
    * 반 내부 접근 구분(학생/교사)은 기존의 이름+비밀번호(UI 잠금)가 담당합니다.
    ============================================================================ */
 const FIREBASE_CONFIG = {
-  apiKey:"", authDomain:"", databaseURL:"", projectId:"", storageBucket:"", messagingSenderId:"", appId:""
+  apiKey: "AIzaSyBH3HYCnkY2Xp46S53eQEP-zC6Dc-SdpBc",
+  authDomain: "class-teacher-4991c.firebaseapp.com",
+  databaseURL: "https://class-teacher-4991c-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "class-teacher-4991c",
+  storageBucket: "class-teacher-4991c.firebasestorage.app",
+  messagingSenderId: "689443163736",
+  appId: "1:689443163736:web:0c345631b7fb006445842d"
 };
-const SUPER_PASSWORD = "super-2026";
+
+const SUPER_PASSWORD = "cjdrh07000";
 const SCHOOL_GRADE   = "3학년";
 const DEFAULT_ROSTERS = {
   c1: ["강인규","김건우","김예준","김재민","김재준","문찬빈","민현기","박민수","박정우","박종인","박희현","서승운","안종현","오승민","유세혁","유현성","이루다","이승재","이승현","이정민","이태양","이현준","이호준","이휘호","정수현","지요한","최효준","탁재우","홍상현"],
@@ -755,6 +762,9 @@ function viewCounsel(){
     '<a class="link-btn" href="https://docs.google.com/spreadsheets/d/1wRR9EH-5jpMf3uceERObfq5o3OQ9YLai9ATtpFv293w/edit?usp=sharing" target="_blank" rel="noopener">📊 과학관 행사 링크 →</a>'+
     clsLinks.map(l=>lb("🔗",l.title||l.url,l.url)).join("")+
   '</div>';
+  // 학생용: 과학관 링크는 숨기고, 나머지 링크(활동별·반 전용)를 '보고서 제출'로 노출
+  const stuBtns=actLinks.map(l=>lb("📤",l.t,l.u)).join("")+clsLinks.map(l=>lb("📤",l.title||l.url,l.url)).join("");
+  const studentCard=stuBtns?'<div class="link-card"><div class="link-t">📤 보고서 제출</div>'+stuBtns+'</div>':'';
   const counsel='<aside class="counsel '+(lock?"locked":"")+'">'+
     '<div class="ch"><span class="ci">✎</span><h3>자율진로활동 상담</h3>'+
       (lock?'<span class="lockchip">열람 전용</span>':'<span class="cs" id="counsel-save"></span>')+'</div>'+
@@ -769,7 +779,7 @@ function viewCounsel(){
     '<div class="ftr"><button class="btn primary sm" id="print-full" style="flex:1">🖨 활동+상담</button><button class="btn sm" id="print-counsel" style="flex:1">🖨 상담만</button></div>'+
     '<div class="counsel-note">'+(lock?"상담 내용은 담임 선생님만 작성할 수 있고, 학생은 열람만 가능합니다. (모든 활동 탭에서 동일하게 표시)":"이 패널은 모든 활동 탭에서 동일하게 연동됩니다.")+'</div>'+
   '</aside>';
-  return '<div class="counsel-col">'+(S.role==="student"?"":linkCard)+counsel+'</div>';
+  return '<div class="counsel-col">'+(S.role==="student"?studentCard:linkCard)+counsel+'</div>';
 }
 let _lastStudentJSON="";
 function studentSnap(){ // 가벼운 시그니처: 전체 텍스트를 직렬화하지 않고 구조 + 각 필드 길이만
