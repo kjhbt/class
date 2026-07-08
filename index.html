@@ -404,13 +404,13 @@ body{overflow-x:hidden}
    * 반 내부 접근 구분(학생/교사)은 기존의 이름+비밀번호(UI 잠금)가 담당합니다.
    ============================================================================ */
 const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyBH3HYCnkY2Xp46S53eQEP-zC6Dc-SdpBc",
-  authDomain: "class-teacher-4991c.firebaseapp.com",
-  databaseURL: "https://class-teacher-4991c-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "class-teacher-4991c",
-  storageBucket: "class-teacher-4991c.firebasestorage.app",
-  messagingSenderId: "689443163736",
-  appId: "1:689443163736:web:0c345631b7fb006445842d"
+  apiKey: "AIzaSyAkgcMUgmRDy_tFcgOO6XftRLzm2154AoA",
+  authDomain: "boardgame-a3c2b.firebaseapp.com",
+  databaseURL: "https://boardgame-a3c2b-default-rtdb.firebaseio.com",
+  projectId: "boardgame-a3c2b",
+  storageBucket: "boardgame-a3c2b.firebasestorage.app",
+  messagingSenderId: "973971875545",
+  appId: "1:973971875545:web:deea3d1369097e8766c0c8"
 };
 
 const SUPER_PASSWORD = "cjdrh07000";
@@ -804,7 +804,15 @@ function restoreFocus(f){ if(!f)return; let sel;
   else if(f.cls&&f.cls.includes("career-f")) sel='.career-f';
   else if(f.f) sel='.rec-f[data-f="'+f.f+'"],.counsel-f[data-f="'+f.f+'"]';
   const el=sel&&$(sel); if(el){el.focus();try{el.setSelectionRange(f.s,f.e);}catch(e){}} }
+function scrollActiveTabIntoView(){
+  const sc=document.querySelector(".tab-scroll"); if(!sc) return;
+  const act=sc.querySelector(".tab.active"); if(!act) return;
+  const scR=sc.getBoundingClientRect(), aR=act.getBoundingClientRect();
+  if(aR.left < scR.left) sc.scrollLeft -= (scR.left - aR.left) + 8;
+  else if(aR.right > scR.right) sc.scrollLeft += (aR.right - scR.right) + 8;
+}
 function bindStudent(){
+  scrollActiveTabIntoView();
   document.querySelectorAll(".tab").forEach(t=>t.onclick=e=>{ if(e.target.dataset.del){e.stopPropagation();confirmDelRecord(e.target.dataset.del);return;} S.tab=t.dataset.tab; $("#app").innerHTML=viewStudent(); bindStudent(); });
   document.querySelectorAll(".rec-f").forEach(inp=>inp.oninput=()=>{const f=inp.dataset.f; if(S.student&&S.student.records&&S.student.records[S.tab])S.student.records[S.tab][f]=inp.value; touchStudentSnap(); saveDebounced("rec-"+S.tab+"-"+f,"classes/"+S.ck+"/students/"+S.sid+"/records/"+S.tab,{[f]:inp.value},"rec-save");});
   // 진로 희망
