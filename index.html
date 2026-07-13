@@ -395,7 +395,7 @@ body{overflow-x:hidden}
    설정 (CONFIG) — 배포 전 이 부분만 수정
    1) Firebase 콘솔 → Realtime Database → 웹 앱 등록 → firebaseConfig 복사
    2) FIREBASE_CONFIG 붙여넣기 (databaseURL 필수)
-   3) SUPER_PASSWORD(관리자=선생님 본인) 변경
+   3) 관리자 비번은 SUPER_PASSWORD_HASH(SHA-256 해시)로 저장 — 평문 미노출
    4) [보안] Firebase 콘솔 → Authentication → 로그인 방법 → '익명' 사용 설정
    5) [보안] Realtime Database 규칙을 아래로 바꾸고 게시:
         { "rules": { ".read": "auth != null", ".write": "auth != null" } }
@@ -413,7 +413,12 @@ const FIREBASE_CONFIG = {
   appId: "1:689443163736:web:0c345631b7fb006445842d"
 };
 
-const SUPER_PASSWORD = "cjdrh07000";
+const SUPER_PASSWORD_HASH = "eb584029a8746c97f1ab208036070ea94d0b83244d9ef1c193a98968f44c4f9a"; /* 관리자 비번의 SHA-256 해시(평문 미노출). 변경: 아래 sha256Hex로 새 해시 계산 후 교체 */
+async function sha256Hex(str){
+  try{ const buf=await crypto.subtle.digest("SHA-256", new TextEncoder().encode(String(str)));
+    return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join(""); }
+  catch(e){ return "__nohash__"; }
+}
 const SCHOOL_GRADE   = "3학년";
 const DEFAULT_ROSTERS = {
   c1: ["강인규","김건우","김예준","김재민","김재준","문찬빈","민현기","박민수","박정우","박종인","박희현","서승운","안종현","오승민","유세혁","유현성","이루다","이승재","이승현","이정민","이태양","이현준","이호준","이휘호","정수현","지요한","최효준","탁재우","홍상현"],
@@ -1345,7 +1350,7 @@ function openModal(title,body,onOk,okLabel,danger){
 function askSuperPassword(){
   const ov=openModal("관리자 로그인","<label class='eyebrow'>비밀번호</label><input class='inp' id='sp' type='password' placeholder='관리자 비밀번호'>",null,"입장");
   const ok=ov.querySelector("#m-ok"), sp=ov.querySelector("#sp"); setTimeout(()=>sp&&sp.focus(),50);
-  const go=()=>{ if(sp.value===SUPER_PASSWORD){ov.remove();enterSuper();} else {toast("비밀번호가 올바르지 않습니다","err");sp.value="";sp.focus();} };
+  const go=async()=>{ const h=await sha256Hex(sp.value); if(h===SUPER_PASSWORD_HASH){ov.remove();enterSuper();} else {toast("비밀번호가 올바르지 않습니다","err");sp.value="";sp.focus();} };
   ok.onclick=go; sp.onkeydown=e=>{if(e.key==="Enter")go();};
 }
 function wireGlobal(){
