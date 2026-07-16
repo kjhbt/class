@@ -930,12 +930,12 @@ function viewClass(){
 function stuContentSig(st){
   st=st||{}; const r=st.records||{}; let s="";
   Object.keys(r).sort().forEach(id=>{const x=r[id]||{}; s+=id+":"+(x.name||"").length+","+(x.subtopic||"").length+","+(x.motivation||"").length+","+(x.content||"").length+","+(x.learned||"").length+","+(x.domain||"")+"|";});
-  const c=st.counseling||{}; s+="#"+(c.autoDesign||"").length+","+(c.careerDesign||"").length+","+(c.summary||"").length;
+  /* 상담(counseling)은 교사가 작성하므로 변동 지문에서 제외 — 학생 편집분만 감지 */
   const b=st.books||{}; s+="#"; ["auto","career"].forEach(d=>{const o=b[d]||{}; Object.keys(o).sort().forEach(k=>{s+=d+k+":"+((o[k].title||"").length)+","+((o[k].activity||"").length)+";";});});
   s+="#"+(st.career||"").length;
   return s;
 }
-function seenKey(ck){ return "cea3_seen_"+((S.teacher&&S.teacher._id)||S.role||"t")+"_"+ck; }
+function seenKey(ck){ return "cea3_seen_v2_"+((S.teacher&&S.teacher._id)||S.role||"t")+"_"+ck; }
 function loadSeen(ck){ try{return JSON.parse(localStorage.getItem(seenKey(ck))||"{}");}catch(e){return {};} }
 function saveSeen(ck,m){ try{localStorage.setItem(seenKey(ck),JSON.stringify(m));}catch(e){} }
 function markSeen(ck,sid,sig){ const m=loadSeen(ck); m[sid]=sig; saveSeen(ck,m); }
