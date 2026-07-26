@@ -977,7 +977,11 @@ function viewClassStudents(){
   return '<div class="panel" style="padding:18px 20px">'+
     '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap"><span class="badge career">OVERVIEW</span>'+
       '<strong style="font-size:15px">학생 기록·상담 관리 및 비밀번호</strong>'+
-      '<button class="btn sm" id="print-roster" style="margin-left:auto">🖨 이름·비밀번호 인쇄</button></div>'+
+      '<div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">'+
+        '<button class="btn primary sm" id="print-class-full">🖨 우리 반 전체(활동+상담)</button>'+
+        '<button class="btn sm" id="print-class-counsel">🖨 상담만</button>'+
+        '<button class="btn ghost sm" id="print-roster">🖨 이름·비밀번호</button>'+
+      '</div></div>'+
     '<div style="display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin:0 0 10px"><span class="lgd"><span class="lgdbox st-green"></span>활동 입력됨</span><span class="lgd"><span class="lgdbox st-red"></span>활동 없음</span><span class="lgd"><span class="lgdbox st-blue"></span>새 변동(미확인)</span></div>'+
     '<p style="font-size:12.5px;color:var(--muted);margin:0 0 14px">학생 비밀번호는 처음에 자동으로 무작위 생성되어 배부됩니다. 칸을 직접 고쳐 바꾸거나 🎲로 새로 생성할 수 있어요. 학생이 새로 입력·수정하면 카드가 파란색(변동)으로 바뀌고, ‘열기’로 확인하면 다시 초록/빨강으로 돌아갑니다.</p>'+
     '<div class="a-grid">'+cards+'</div></div>';
@@ -1035,6 +1039,8 @@ function bindClass(){
   updateChangeNotif();
   document.querySelectorAll(".atab").forEach(t=>t.onclick=()=>{S.adminTab=t.dataset.at;$("#app").innerHTML=viewClass();bindClass();});
   const pr=$("#print-roster"); if(pr)pr.onclick=printRoster;
+  const pcf=$("#print-class-full"); if(pcf)pcf.onclick=()=>doPrintClass("full");
+  const pcc=$("#print-class-counsel"); if(pcc)pcc.onclick=()=>doPrintClass("counsel");
   const sw=$("#cls-switch"); if(sw)sw.onclick=()=>{clearSubs();S.view="tea-classes";render();};
   const su=$("#cls-super"); if(su)su.onclick=()=>{clearSubs();enterSuper();};
   document.querySelectorAll(".a-stu .open").forEach(b=>b.onclick=()=>{ markSeen(S.ck,b.dataset.sid,stuContentSig((S.allStudents||{})[b.dataset.sid])); enterStudent(S.ck,b.dataset.sid,S.role); });
@@ -1268,11 +1274,10 @@ function openSelectClass(cb){
   const body='<select class="select" id="sel-ck"><option value="">— 반 선택 —</option>'+CLASS_KEYS.map(ck=>'<option value="'+ck+'">'+esc(classLabel(ck))+'</option>').join("")+'</select>';
   const ov=openModal("학급 열기",body,()=>{const v=ov.querySelector("#sel-ck").value; if(v)cb(v);},"열기");
 }
-function doPrint(mode){
-  mode=mode||"full";
-  const r=rosterOf(S.ck,S.sid); const recs=recordsSorted();
-  const b=(S.student&&S.student.books)||{}; const c=(S.student&&S.student.counseling)||{};
-  const career=(S.student&&S.student.career)||"";
+function buildStudentPrint(st, r, mode){
+  st=st||{}; mode=mode||"full";
+  const recs=Object.entries(st.records||{}).map(([id,x])=>({id,...x})).sort((a,b)=>(a.order||0)-(b.order||0));
+  const b=st.books||{}; const c=st.counseling||{}; const career=st.career||"";
   const today=new Date().toLocaleDateString("ko-KR");
   const dash='<span class="p-empty">—</span>';
   const head='<div class="p-h"><div class="p-h-l"><div class="p-kick">'+esc(SCHOOL_GRADE)+' 창의적 체험활동</div>'+
@@ -1284,7 +1289,6 @@ function doPrint(mode){
       '<div class="pcrow"><div class="pck">자율 활동 상담</div><div class="pcv">'+(nl2br(c.autoDesign)||dash)+'</div></div>'+
       '<div class="pcrow"><div class="pck">진로 활동 상담</div><div class="pcv">'+(nl2br(c.careerDesign)||dash)+'</div></div>'+
       '<div class="pcrow"><div class="pck">종합 소견</div><div class="pcv">'+(nl2br(c.summary)||dash)+'</div></div></div>';
-
   let inner=head+careerBox;
   if(mode==="full"){
     const domChip=d=>'<span class="p-badge '+domainClass(d)+'">'+esc(d||"자율")+'</span>';
@@ -1300,7 +1304,30 @@ function doPrint(mode){
   } else {
     inner+='<div class="p-sec"><h3>자율진로활동 상담</h3>'+counselBox+'</div>';
   }
+  return inner;
+}
+function doPrint(mode){
+  mode=mode||"full";
+  const r=rosterOf(S.ck,S.sid);
+  const inner=buildStudentPrint(S.student||{}, r, mode);
   $("#print-root").innerHTML='<div class="p-doc">'+inner+'<div class="p-foot">본 문서는 창의적 체험활동 기록·상담 워크스페이스에서 출력되었습니다.</div></div>';
+  window.print();
+}
+function doPrintClass(mode){
+  mode=mode||"full";
+  const all=S.allStudents||{};
+  const list=rosterArr(S.ck);
+  const today=new Date().toLocaleDateString("ko-KR");
+  const cover='<div class="p-doc" style="page-break-after:always"><div class="p-h"><div class="p-h-l">'+
+    '<div class="p-kick">'+esc(SCHOOL_GRADE)+' 창의적 체험활동</div><div class="pt">'+esc(classLabel(S.ck))+' 전체 '+(mode==="counsel"?"상담 기록":"활동·상담 기록")+'</div></div>'+
+    '<div class="p-h-r"><table class="p-meta"><tr><td>학급</td><th>'+esc(classLabel(S.ck))+'</th></tr><tr><td>인원</td><th>'+list.length+'명</th></tr><tr><td>출력일</td><th>'+today+'</th></tr></table></div></div>'+
+    '<p class="p-note">아래는 우리 반 학생별 '+(mode==="counsel"?"상담":"활동·상담")+' 기록을 한 문서로 모은 것입니다. 학생 개인정보가 포함되어 있으니 취급에 유의하세요.</p></div>';
+  const blocks=list.map((r,idx)=>{
+    const inner=buildStudentPrint(all[r.sid]||{}, r, mode);
+    const last=idx===list.length-1;
+    return '<div class="p-doc"'+(last?"":' style="page-break-after:always"')+'>'+inner+'</div>';
+  }).join("");
+  $("#print-root").innerHTML=cover+blocks;
   window.print();
 }
 function printRoster(){
